@@ -46,7 +46,7 @@
 
 <p>Where <code>/other/document/here.html</code> is the document you want to include. Note that because of limitations in the JavaScript security model, it <strong>must</strong> be on the same server.</p>
 
-<p>For example, <hx:include src=".demo/included"></hx:include>. You can include any HTML markup that would be valid in context.</p>
+<p>For example, <hx:include src="demo/included"></hx:include>. You can include any HTML markup that would be valid in context.</p>
 
 
 <h2>Rendering Mode</h2>
@@ -80,7 +80,7 @@ HInclude will show what it has and keep on listening for the remaining responses
   &lt;/hx:include>
 </pre>
 
-<p>Looks like this: <hx:include src=".demo/new">this content will be overwritten by the included content</hx:include>.</p>
+<p>Looks like this: <hx:include src="demo/new">this content will be overwritten by the included content</hx:include>.</p>
 
 <p>Since HTML instructs browsers to ignore elements they don&#8217;t understand, default content is also shown by those that have JavaScript turned off.</p>
 
