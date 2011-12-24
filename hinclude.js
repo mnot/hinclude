@@ -25,10 +25,6 @@ SOFTWARE.
 
 See http://www.mnot.net/javascript/hinclude/ for documentation.
 
-TODO:
- - check navigator property to see if browser will handle this without
-   javascript
-
 ------------------------------------------------------------------------------
 */
 
