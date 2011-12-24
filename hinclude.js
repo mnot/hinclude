@@ -26,7 +26,7 @@ SOFTWARE.
 See http://www.mnot.net/javascript/hinclude/ for documentation.
 
 TODO:
- - check navigator property to see if browser will handle this without 
+ - check navigator property to see if browser will handle this without
    javascript
 
 ------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ var hinclude = {
 
   outstanding: 0,
   run: function () {
-    var mode = this.get_meta("include_mode", "buffered"); 
+    var mode = this.get_meta("include_mode", "buffered");
     var callback = function(element, req) {};
     var includes = document.getElementsByTagName("hx:include");
     if (includes.length == 0) { // remove ns for IE
@@ -81,7 +81,7 @@ var hinclude = {
       this.include(includes[i], includes[i].getAttribute("src"), callback);
     }
   },
-  
+
   include: function (element, url, incl_cb) {
     scheme = url.substring(0,url.indexOf(":"));
     if (scheme.toLowerCase() == "data") { // just text/plain for now
@@ -114,7 +114,7 @@ var hinclude = {
           this.outstanding--;
           alert("Include error: " + url + " (" + e + ")");
         }
-      }    
+      }
     }
   },
 
@@ -128,7 +128,7 @@ var hinclude = {
     }
     return value_default;
   },
-  
+
   /*
    * (c)2006 Dean Edwards/Matthias Miller/John Resig
    * Special thanks to Dan Webb's domready.js Prototype extension
@@ -136,7 +136,7 @@ var hinclude = {
    *
    * For more info, see:
    * http://dean.edwards.name/weblog/2006/06/again/
-   * 
+   *
    * Thrown together by Jesse Skinner (http://www.thefutureoftheweb.com/)
    *
    *
@@ -150,7 +150,7 @@ var hinclude = {
    *    addDOMLoadEvent(function() {
    *        // do other stuff
    *    });
-   */ 
+   */
   addDOMLoadEvent: function(func) {
     if (!window.__load_events) {
       var init = function () {
@@ -165,13 +165,13 @@ var hinclude = {
           clearInterval(window.__load_timer);
           window.__load_timer = null;
         }
-    
+
         // execute each function in the stack in the order they were added
         for (var i=0;i < window.__load_events.length;i++) {
           window.__load_events[i]();
         }
         window.__load_events = null;
-    
+
         // clean up the __ie_onload event
         /*@cc_on @*/
         /*@if (@_win32)
@@ -183,7 +183,7 @@ var hinclude = {
       if (document.addEventListener) {
         document.addEventListener("DOMContentLoaded", init, false);
       }
-  
+
       // for Internet Explorer
       /*@cc_on @*/
       /*@if (@_win32)
@@ -199,7 +199,7 @@ var hinclude = {
               }
           };
       /*@end @*/
-  
+
       // for Safari
       if (/WebKit/i.test(navigator.userAgent)) { // sniff
         window.__load_timer = setInterval(function() {
@@ -208,10 +208,10 @@ var hinclude = {
           }
         }, 10);
       }
-  
+
       // for other browsers
       window.onload = init;
-  
+
       // create event function stack
       window.__load_events = [];
     }
