@@ -83,7 +83,7 @@ var hinclude = {
   },
 
   include: function (element, url, incl_cb) {
-    scheme = url.substring(0,url.indexOf(":"));
+    var scheme = url.substring(0,url.indexOf(":"));
     if (scheme.toLowerCase() == "data") { // just text/plain for now
       data = unescape(url.substring(url.indexOf(",") + 1, url.length));
       element.innerHTML = data;
