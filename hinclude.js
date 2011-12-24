@@ -219,6 +219,6 @@ var hinclude = {
     // add function to event stack
     window.__load_events.push(func);
   }
-}
+};
 
 hinclude.addDOMLoadEvent(function() { hinclude.run(); });
