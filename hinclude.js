@@ -134,18 +134,6 @@ var hinclude = {
    * http://dean.edwards.name/weblog/2006/06/again/
    *
    * Thrown together by Jesse Skinner (http://www.thefutureoftheweb.com/)
-   *
-   *
-   * To use: call addDOMLoadEvent one or more times with functions, ie:
-   *
-   *    function something() {
-   *       // do something
-   *    }
-   *    addDOMLoadEvent(something);
-   *
-   *    addDOMLoadEvent(function() {
-   *        // do other stuff
-   *    });
    */
   addDOMLoadEvent: function(func) {
     if (!window.__load_events) {
