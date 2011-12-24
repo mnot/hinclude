@@ -8,5 +8,5 @@ HInclude is declarative client-side inclusion for the Web; it allows easy
 composition of Web pages using the browser -- making your pages more modular,
 more cacheable, and easier to maintain. 
 
-See [the demo page](http://hinclude.github.com/) for documentation and
+See [the demo page](http://mnot.github.com/hinclude/) for documentation and
 examples.
