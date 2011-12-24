@@ -136,7 +136,7 @@ var hinclude = {
    * Thrown together by Jesse Skinner (http://www.thefutureoftheweb.com/)
    */
   addDOMLoadEvent: function(func) {
-    if (!window.__load_events) {
+    if (! window.__load_events) {
       var init = function () {
         // quit if this function has already been called
         if (arguments.callee.done) return;
@@ -151,7 +151,7 @@ var hinclude = {
         }
 
         // execute each function in the stack in the order they were added
-        for (var i=0;i < window.__load_events.length;i++) {
+        for (var i=0; i < window.__load_events.length; i++) {
           window.__load_events[i]();
         }
         window.__load_events = null;
