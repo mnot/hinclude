@@ -31,12 +31,14 @@ See http://mnot.github.com/hinclude/ for documentation.
   "use strict";
 
   var hinclude = {
+    classprefix: "include_",
+    
     set_content_async: function (element, req) {
       if (req.readyState == 4) {
         if (req.status == 200 | req.status == 304) {
           element.innerHTML = req.responseText;
         }
-        element.className = "include_" + req.status;
+        element.className = hinclude['classprefix'] + req.status;
       }
     },
 
@@ -57,7 +59,7 @@ See http://mnot.github.com/hinclude/ for documentation.
         if (include[1].status == 200 | include[1].status == 304) {
           include[0].innerHTML = include[1].responseText;
         }
-        include[0].className = "include_" + include[1].status;
+        include[0].className = hinclude['classprefix'] + include[1].status;
       }
     },
 
