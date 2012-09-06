@@ -110,8 +110,6 @@ See http://mnot.github.com/hinclude/ for documentation.
           };
           try {
             req.open("GET", url, true);
-            req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-            req.setRequestHeader("X-Request-Source", "HTMLInclude");
             req.send("");
           } catch (e) {
             this.outstanding--;
