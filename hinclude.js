@@ -26,12 +26,13 @@ SOFTWARE.
 See http://mnot.github.com/hinclude/ for documentation.
 */
 
-(function() {
+(function(w) {
 
   "use strict";
 
   var hinclude = {
     classprefix: "include_",
+    beforerequest: null,
     
     set_content_async: function (element, req) {
       if (req.readyState == 4) {
@@ -67,6 +68,19 @@ See http://mnot.github.com/hinclude/ for documentation.
     run: function () {
       var mode = this.get_meta("include_mode", "buffered");
       var callback = function(element, req) {};
+      var requestcallback = (function(callback) {
+                              switch(typeof(callback)) {
+                                case 'string':
+                                  return new Function(callback);
+                                  break;
+                                case 'function':
+                                  return callback;
+                                  break;
+                                default:
+                                  return new Function();
+                                  break;
+                              }
+                            })(hinclude['beforerequest']);
       var includes = document.getElementsByTagName("hx:include");
       if (includes.length === 0) { // remove ns for IE
         includes = document.getElementsByTagName("include");
@@ -79,11 +93,11 @@ See http://mnot.github.com/hinclude/ for documentation.
         setTimeout(hinclude.show_buffered_content, timeout);
       }
       for (var i=0; i < includes.length; i++) {
-        this.include(includes[i], includes[i].getAttribute("src"), callback);
+        this.include(includes[i], includes[i].getAttribute("src"), callback, requestcallback);
       }
     },
 
-    include: function (element, url, incl_cb) {
+    include: function (element, url, incl_cb, request_cb) {
       var scheme = url.substring(0,url.indexOf(":"));
       if (scheme.toLowerCase() == "data") { // just text/plain for now
         var data = unescape(url.substring(url.indexOf(",") + 1, url.length));
@@ -110,6 +124,7 @@ See http://mnot.github.com/hinclude/ for documentation.
           };
           try {
             req.open("GET", url, true);
+            request_cb(req, url);
             req.send("");
           } catch (e) {
             this.outstanding--;
@@ -195,5 +210,24 @@ See http://mnot.github.com/hinclude/ for documentation.
     }
   };
 
+  var impl = function() {};
+  impl.setClassPrefix = function(value) {
+    hinclude['classprefix'] = value;
+  };
+  
+  impl.getClassPrefix = function() {
+    return hinclude['classprefix'];
+  };
+  
+  impl.setBeforeRequestCallback = function(value) {
+    hinclude['beforerequest'] = value;
+  };
+  
+  impl.getBeforeRequestCallback = function() {
+    return hinclude['beforerequest'];
+  };
+
+  w['hinclude'] = impl;
+
   hinclude.addDOMLoadEvent(function() { hinclude.run(); });
-}());
+}(window));
