@@ -88,7 +88,9 @@ See http://mnot.github.com/hinclude/ for documentation.
     runHincludeJs: function (element) {
         var codeJs = element.getElementsByTagName("hincludejs");
         for (var i=0; i < codeJs.length; i++) {
-          jQuery.globalEval(codeJs[i].innerHTML);
+           var code = codeJs[i].innerHTML;
+           jQuery.globalEval(code);
+           codeJs[i].parentNode.removeChild(codeJs[i]);
         }
     },
 
