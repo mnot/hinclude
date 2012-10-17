@@ -37,6 +37,7 @@ See http://mnot.github.com/hinclude/ for documentation.
       if (req.readyState == 4) {
         if (req.status == 200 | req.status == 304) {
           element.innerHTML = req.responseText;
+          this.runHincludeJs(element);
         }
         element.className = hinclude['classprefix'] + req.status;
       }
@@ -58,6 +59,7 @@ See http://mnot.github.com/hinclude/ for documentation.
         var include = hinclude.buffer.pop();
         if (include[1].status == 200 | include[1].status == 304) {
           include[0].innerHTML = include[1].responseText;
+          this.runHincludeJs(include[0]);
         }
         include[0].className = hinclude['classprefix'] + include[1].status;
       }
@@ -81,6 +83,13 @@ See http://mnot.github.com/hinclude/ for documentation.
       for (var i=0; i < includes.length; i++) {
         this.include(includes[i], includes[i].getAttribute("src"), callback);
       }
+    },
+    
+    runHincludeJs: function (element) {
+        var codeJs = element.getElementsByTagName("hincludejs");
+        for (var i=0; i < codeJs.length; i++) {
+          jQuery.globalEval(codeJs[i].innerHTML);
+        }
     },
 
     include: function (element, url, incl_cb) {
