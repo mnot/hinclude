@@ -14,8 +14,9 @@
     <body>
         <hx:include src="partials/nav.html"></hx:include>
         <div class="container">
+            <h1>Refresh Example</h1>
             <div class="well">
-                <hx:include src="partials/top.html"></hx:include>
+                <hx:include src="partials/refresh/top.html" id="top"></hx:include>
             </div>
             <div class="row">
                 <div class="span4">
@@ -25,12 +26,12 @@
                 </div>
                 <div class="span8">
                     <div class="well well-small">
-                        <hx:include src="partials/content.html"></hx:include>
+                        <hx:include src="partials/refresh/content.html"></hx:include>
                     </div>
                 </div>
             </div>
             <hr />
-            This example shows ...
+            This example shows how to trigger an event that <b>refresh</b> an Hinclude Partial
             <hx:include src="partials/footer.html"></hx:include>
         </div>
     </body>

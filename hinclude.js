@@ -124,6 +124,17 @@ See http://mnot.github.com/hinclude/ for documentation.
       }
     },
     
+    refresh: function (element_id){
+      var mode = this.get_meta("include_mode", "buffered");
+      var callback = function(element, req) {};
+      callback = this.set_content_buffered;
+      for (var i=0; i < this.includes.length; i++) {
+        if(this.includes[i].getAttribute("id") == element_id){
+          this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
+        }
+      }
+    },
+
     get_meta: function (name, value_default) {
       var metas = document.getElementsByTagName("meta");
       for (var m=0; m < metas.length; m++) {
@@ -149,7 +160,7 @@ See http://mnot.github.com/hinclude/ for documentation.
       if (! window.__load_events) {
         var init = function () {
           // quit if this function has already been called
-          if (hinclude.addDOMLoadEvent.done) { return; }
+          if (hinclude.addDOMLoadEvent.done) {return;}
           hinclude.addDOMLoadEvent.done = true;
           if (window.__load_timer) {
             clearInterval(window.__load_timer);
@@ -200,5 +211,5 @@ See http://mnot.github.com/hinclude/ for documentation.
     }
   };
 
-  hinclude.addDOMLoadEvent(function() { hinclude.run(); });
+  hinclude.addDOMLoadEvent(function() {hinclude.run();});
 }());
