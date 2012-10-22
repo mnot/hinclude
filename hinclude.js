@@ -58,6 +58,10 @@ See http://mnot.github.com/hinclude/ for documentation.
         var include = hinclude.buffer.pop();
         if (include[1].status == 200 | include[1].status == 304) {
           include[0].innerHTML = include[1].responseText;
+          var scripts = include[0].getElementsByTagName('script');
+          for (var i=0;i<scripts.length;i++) {
+            eval(scripts[i].innerHTML);
+          }
         }
         include[0].className = hinclude['classprefix'] + include[1].status;
       }
@@ -119,7 +123,7 @@ See http://mnot.github.com/hinclude/ for documentation.
         }
       }
     },
-
+    
     get_meta: function (name, value_default) {
       var metas = document.getElementsByTagName("meta");
       for (var m=0; m < metas.length; m++) {
