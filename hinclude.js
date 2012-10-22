@@ -64,12 +64,13 @@ See http://mnot.github.com/hinclude/ for documentation.
     },
 
     outstanding: 0,
+    includes: [],
     run: function () {
       var mode = this.get_meta("include_mode", "buffered");
       var callback = function(element, req) {};
-      var includes = document.getElementsByTagName("hx:include");
-      if (includes.length === 0) { // remove ns for IE
-        includes = document.getElementsByTagName("include");
+      this.includes = document.getElementsByTagName("hx:include");
+      if (this.includes.length === 0) { // remove ns for IE
+        hincludeincludes = document.getElementsByTagName("include");
       }
       if (mode == "async") {
         callback = this.set_content_async;
@@ -78,8 +79,8 @@ See http://mnot.github.com/hinclude/ for documentation.
         var timeout = this.get_meta("include_timeout", 2.5) * 1000;
         setTimeout(hinclude.show_buffered_content, timeout);
       }
-      for (var i=0; i < includes.length; i++) {
-        this.include(includes[i], includes[i].getAttribute("src"), callback);
+      for (var i=0; i < this.includes.length; i++) {
+        this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
       }
     },
 
