@@ -37,6 +37,7 @@ See http://mnot.github.com/hinclude/ for documentation.
       if (req.readyState == 4) {
         if (req.status == 200 | req.status == 304) {
           element.innerHTML = req.responseText;
+          this.runJs(element);
         }
         element.className = hinclude['classprefix'] + req.status;
       }
@@ -52,24 +53,33 @@ See http://mnot.github.com/hinclude/ for documentation.
         }
       }
     },
+    
+    runJs: function (element) {
+      var scripts = element.getElementsByTagName('script');
+      for (var i=0;i<scripts.length;i++) {
+        eval(scripts[i].innerHTML);
+      }
+    },
 
     show_buffered_content: function () {
       while (hinclude.buffer.length > 0) {
         var include = hinclude.buffer.pop();
         if (include[1].status == 200 | include[1].status == 304) {
           include[0].innerHTML = include[1].responseText;
+          this.runJs(include[0]);
         }
         include[0].className = hinclude['classprefix'] + include[1].status;
       }
     },
 
     outstanding: 0,
+    includes: [],
     run: function () {
       var mode = this.get_meta("include_mode", "buffered");
       var callback = function(element, req) {};
-      var includes = document.getElementsByTagName("hx:include");
-      if (includes.length === 0) { // remove ns for IE
-        includes = document.getElementsByTagName("include");
+      this.includes = document.getElementsByTagName("hx:include");
+      if (this.includes.length === 0) { // remove ns for IE
+        hincludeincludes = document.getElementsByTagName("include");
       }
       if (mode == "async") {
         callback = this.set_content_async;
@@ -78,8 +88,8 @@ See http://mnot.github.com/hinclude/ for documentation.
         var timeout = this.get_meta("include_timeout", 2.5) * 1000;
         setTimeout(hinclude.show_buffered_content, timeout);
       }
-      for (var i=0; i < includes.length; i++) {
-        this.include(includes[i], includes[i].getAttribute("src"), callback);
+      for (var i=0; i < this.includes.length; i++) {
+        this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
       }
     },
 
@@ -88,6 +98,7 @@ See http://mnot.github.com/hinclude/ for documentation.
       if (scheme.toLowerCase() == "data") { // just text/plain for now
         var data = unescape(url.substring(url.indexOf(",") + 1, url.length));
         element.innerHTML = data;
+        this.runJs(element);
       } else {
         var req = false;
         if(window.XMLHttpRequest) {
@@ -118,6 +129,17 @@ See http://mnot.github.com/hinclude/ for documentation.
         }
       }
     },
+    
+    refresh: function (element_id){
+      var mode = this.get_meta("include_mode", "buffered");
+      var callback = function(element, req) {};
+      callback = this.set_content_buffered;
+      for (var i=0; i < this.includes.length; i++) {
+        if(this.includes[i].getAttribute("id") == element_id){
+          this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
+        }
+      }
+    },
 
     get_meta: function (name, value_default) {
       var metas = document.getElementsByTagName("meta");
@@ -144,7 +166,7 @@ See http://mnot.github.com/hinclude/ for documentation.
       if (! window.__load_events) {
         var init = function () {
           // quit if this function has already been called
-          if (hinclude.addDOMLoadEvent.done) { return; }
+          if (hinclude.addDOMLoadEvent.done) {return;}
           hinclude.addDOMLoadEvent.done = true;
           if (window.__load_timer) {
             clearInterval(window.__load_timer);
@@ -195,5 +217,5 @@ See http://mnot.github.com/hinclude/ for documentation.
     }
   };
 
-  hinclude.addDOMLoadEvent(function() { hinclude.run(); });
+  hinclude.addDOMLoadEvent(function() {hinclude.run();});
 }());
