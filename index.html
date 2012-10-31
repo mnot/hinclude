@@ -1,105 +1,123 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns:hx="http://purl.org/NET/hinclude">
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title>Introducing HInclude</title>
-	<link type="text/css" rel="stylesheet" href="http://mnot.net/style.css">
-	<script type="text/javascript" src="hinclude.js"></script>
-	<style type="text/css">
-	.error_text { display: none; }
-	.include_404 .error_404 { display: inline; text-decoration: underline; }
-	</style>
-</head>
-<body>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>Introducing HInclude</title>
+        <link type="text/css" rel="stylesheet" href="http://mnot.net/style.css">
+        <script type="text/javascript" src="hinclude.js"></script>
+        <style type="text/css">
+            .error_text { display: none; }
+            .include_404 .error_404 { display: inline; text-decoration: underline; }
+        </style>
+    </head>
+    <body>
 
-  <a href="http://github.com/mnot/hinclude"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+        <a href="http://github.com/mnot/hinclude"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
-<div id="main">
+        <div id="main">
 
-<h1>hinclude.js</h1>
+            <h1>hinclude.js</h1>
 
-<p class="intro">Tired of regenerating HTML pages from templates? Want more from Web caches? <strong>HInclude</strong> makes one thing very easy; including other bits of HTML into your Web page, <em>using the browser</em>.</p>
+            <p class="intro">Tired of regenerating HTML pages from templates? Want more from Web caches? <strong>HInclude</strong> makes one thing very easy; including other bits of HTML into your Web page, <em>using the browser</em>.</p>
 
-<h2>The Basics</h2>
+            <h2>The Basics</h2>
 
-<p>Hinclude adds one element to HTML; <code>hx:include</code>. When the browser encounters this element,  it will include the document at the end of the <code>src</code> attribute.</p>
+            <p>Hinclude adds one element to HTML; <code>hx:include</code>. When the browser encounters this element,  it will include the document at the end of the <code>src</code> attribute.</p>
 
-<p>To use it, first download a copy of the library and make it available on your site;</p>
+            <p>To use it, first download a copy of the library and make it available on your site;</p>
 
-<p><strong>Download</strong>: <a href="https://github.com/mnot/hinclude/tags">hinclude.js</a></p>
+            <p><strong>Download</strong>: <a href="https://github.com/mnot/hinclude/tags">hinclude.js</a></p>
 
-<p>Now, in each page where you want to use HInclude, add a namespace declaration and a script tag to the top (<em>changing the script tag to point to your copy</em>):</p>
+            <p>Now, in each page where you want to use HInclude, add a namespace declaration and a script tag to the top (<em>changing the script tag to point to your copy</em>):</p>
 
-<pre class="example">
+            <pre class="example">
   &lt;html <strong>xmlns:hx="http://purl.org/NET/hinclude"</strong>&gt;
     &lt;head>
       <strong>&lt;script src="/lib/hinclude.js"
        type="text/javascript"&gt;&lt;/script&gt;</strong>
   ...
-</pre>
+            </pre>
 
-<p>Then, wherever you want to include something, do this:</p>
+            <p>Then, wherever you want to include something, do this:</p>
 
-<pre class="example">
+            <pre class="example">
   &lt;hx:include src="/other/document/here.html"&gt;&lt;/hx:include&gt;
-</pre>
+            </pre>
 
-<p>Where <code>/other/document/here.html</code> is the document you want to include. Note that because of limitations in the JavaScript security model, it <strong>must</strong> be on the same server.</p>
+            <p>Where <code>/other/document/here.html</code> is the document you want to include. Note that because of limitations in the JavaScript security model, it <strong>must</strong> be on the same server.</p>
 
-<p>For example, <hx:include src="demo/included"></hx:include>. You can include any HTML markup that would be valid in context.</p>
+            <p>For example, <hx:include src="demo/included"></hx:include>. You can include any HTML markup that would be valid in context.</p>
 
 
-<h2>Rendering Mode</h2>
+        <h2>Rendering Mode</h2>
 
-<p>By default, each one is fetched in the background, and the page is updated only when they all are available.</p>
+        <p>By default, each one is fetched in the background, and the page is updated only when they all are available.</p>
 
-<p>This is bounded by a timeout, by default five seconds. After the timeout,
-HInclude will show what it has and keep on listening for the remaining responses. The timeout is configurable; e.g.,</p>
+        <p>This is bounded by a timeout, by default five seconds. After the timeout,
+            HInclude will show what it has and keep on listening for the remaining responses. The timeout is configurable; e.g.,</p>
 
-<pre class="example">
+        <pre class="example">
   &lt;meta name="include_timeout" content="2" />
-</pre>
+        </pre>
 
-<p>in the document's head section will set the timeout to two seconds.</p>
+        <p>in the document's head section will set the timeout to two seconds.</p>
 
-<p>However, it's also possible to have HIncludes become visible as they're available, using the <code>include_mode</code> meta element with a value of "async". While this shows the included content quicker, it may be less visually smooth.<p>
+        <p>However, it's also possible to have HIncludes become visible as they're available, using the <code>include_mode</code> meta element with a value of "async". While this shows the included content quicker, it may be less visually smooth.<p>
 
-<p>For example, including this in the head section of your HTML:</p>
+        <p>For example, including this in the head section of your HTML:</p>
 
-<pre class="example">  &lt;meta name="include_mode" content="async" /></pre>
+        <pre class="example">  &lt;meta name="include_mode" content="async" /></pre>
 
-<p>will instruct HInclude to show included sections as soon as they're available.</p>
+        <p>will instruct HInclude to show included sections as soon as they're available.</p>
 
-<h2>Default Content</h2>
+        <h2>Default Content</h2>
 
-<p>Before the included content is displayed, anything inside the include element (hereafter, <em>default content</em>) will be visible. For example, this:</p>
+        <p>Before the included content is displayed, anything inside the include element (hereafter, <em>default content</em>) will be visible. For example, this:</p>
 
-<pre class="example">
+        <pre class="example">
   &lt;hx:include src="new">
     this content will be overwritten by the included content
   &lt;/hx:include>
-</pre>
+        </pre>
 
-<p>Looks like this: <hx:include src="demo/new">this content will be overwritten by the included content</hx:include>.</p>
+        <p>Looks like this: <hx:include src="demo/new">this content will be overwritten by the included content</hx:include>.</p>
 
-<p>Since HTML instructs browsers to ignore elements they don&#8217;t understand, default content is also shown by those that have JavaScript turned off.</p>
+        <p>Since HTML instructs browsers to ignore elements they don&#8217;t understand, default content is also shown by those that have JavaScript turned off.</p>
 
-<p>Of course, you can have no default content, in which case nothing will show up until the include is successful. Which brings up&#8230;</p>
+        <p>Of course, you can have no default content, in which case nothing will show up until the include is successful. Which brings up&#8230;</p>
 
-<h2>Advanced Error Handling</h2>
+        <h2>Advanced Error Handling</h2>
 
-<p>Hinclude will also show default content if there is some problem with loading the include.</p>
+        <p>Hinclude will also show default content if there is some problem with loading the include.</p>
 
-<p>That's adequate for typical applications. However, for debugging and other specialised purposes, HInclude allows you to control the display of errors through CSS, by changing the class of the include element based on the result of inclusion.</p>
+        <p>That's adequate for typical applications. However, for debugging and other specialised purposes, HInclude allows you to control the display of errors through CSS, by changing the class of the include element based on the result of inclusion.</p>
 
-<p>For example, if fetching the included URL results in a <code>404 Not Found</code> status code, the class of the include element will be changed to <code>include_404</code>. Likewise, a <code>500 Server Error</code> status code will result in the include element&#8217;s class being changed to <code>include_500</code>.</p>
+        <p>For example, if fetching the included URL results in a <code>404 Not Found</code> status code, the class of the include element will be changed to <code>include_404</code>. Likewise, a <code>500 Server Error</code> status code will result in the include element&#8217;s class being changed to <code>include_500</code>.</p>
 
-<p>For example, <hx:include src="nothing"><span class="error_text error_404">this content is shown because there was a 404</span><span class="error_text error_500">this content is shown because there was a 500</span></hx:include>.</p>
+        <p>For example, <hx:include src="nothing"><span class="error_text error_404">this content is shown because there was a 404</span><span class="error_text error_500">this content is shown because there was a 500</span></hx:include>.</p>
 
-<p><em>View the source of this page to see how that worked&#8230;</em></p>
+        <h2>Refresh Content</h2>
 
-</div>
+        <p>Hinclude is able to refresh the content, through its method <i>refresh</i></p>
 
-</body>
+        <pre class="example"> hinclude.refresh('id_div'); </pre>
+
+        <p>Here there's a quick example: <button id="refresh_content">Refresh</button></p>
+
+        <hr />
+
+        <hx:include src="example/partials/refresh/top.html" id="refresh"></hx:include>
+
+        <hr />
+        
+        <script type="text/javascript">
+            document.getElementById('refresh_content').onclick = function(){
+                hinclude.refresh('refresh');
+            };
+        </script>
+
+        </div>
+
+    </body>
 
 </html>
