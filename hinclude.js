@@ -26,11 +26,13 @@ SOFTWARE.
 See http://mnot.github.com/hinclude/ for documentation.
 */
 
+var hinclude;
+
 (function() {
 
   "use strict";
 
-  var hinclude = {
+  hinclude = {
     classprefix: "include_",
     
     set_content_async: function (element, req) {
