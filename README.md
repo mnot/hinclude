@@ -11,7 +11,7 @@ more cacheable, and easier to maintain.
 You can run javascript code after loading 'hx:include' inserting the
 javascript code inside the tag
 
-	<hincludejs> ... </ hincludejs>
+	<script> ... </script>
 
 example..
 
