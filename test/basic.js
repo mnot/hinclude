@@ -25,7 +25,7 @@ function checkContent(selector, expected) {
     }
 }
 
-page.open('http://localhost:' + port + '/', function (status) {
+page.open('http://localhost:' + port + '/basic.html', function (status) {
     if (status === "success") {
       console.log("testing " + port + "...");
     } else {
