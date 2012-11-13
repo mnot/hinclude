@@ -39,7 +39,6 @@ var hinclude;
       if (req.readyState == 4) {
         if (req.status == 200 | req.status == 304) {
           element.innerHTML = req.responseText;
-          this.runJs(element);
         }
         element.className = hinclude['classprefix'] + req.status;
       }
@@ -56,19 +55,11 @@ var hinclude;
       }
     },
     
-    runJs: function (element) {
-      var scripts = element.getElementsByTagName('script');
-      for (var i=0;i<scripts.length;i++) {
-        eval(scripts[i].innerHTML);
-      }
-    },
-
     show_buffered_content: function () {
       while (hinclude.buffer.length > 0) {
         var include = hinclude.buffer.pop();
         if (include[1].status == 200 | include[1].status == 304) {
           include[0].innerHTML = include[1].responseText;
-          this.runJs(include[0]);
         }
         include[0].className = hinclude['classprefix'] + include[1].status;
       }
@@ -100,7 +91,6 @@ var hinclude;
       if (scheme.toLowerCase() == "data") { // just text/plain for now
         var data = unescape(url.substring(url.indexOf(",") + 1, url.length));
         element.innerHTML = data;
-        this.runJs(element);
       } else {
         var req = false;
         if(window.XMLHttpRequest) {
