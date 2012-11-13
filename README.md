@@ -1,5 +1,7 @@
 # hinclude.js
 
+<a href="http://travis-ci.org/mnot/hinclude"><img src="https://secure.travis-ci.org/mnot/hinclude.png?branch=master"></a>
+
 Tired of regenerating HTML pages from templates? Want more from Web caches?
 *HInclude* makes one thing very easy; including other bits of HTML into your
 Web page, _using the browser_.
