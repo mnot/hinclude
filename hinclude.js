@@ -86,7 +86,7 @@ See http://mnot.github.com/hinclude/ for documentation.
     },
     
     runHincludeJs: function (element) {
-        var codeJs = element.getElementsByTagName("hincludejs");
+        var codeJs = element.getElementsByTagName("script");
         for (var i=0; i < codeJs.length; i++) {
            var code = codeJs[i].innerHTML;
            eval(code);

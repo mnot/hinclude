@@ -17,7 +17,7 @@ example..
 
 	<hx:include src="new">
   	//...//
-  	<hincludejs>$('#sample').css('color': 'red');</hincludejs>
+  	<script>$('#sample').css('color': 'red');</script>
 	</hx:include>
 
 		
