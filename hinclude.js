@@ -81,7 +81,7 @@ var hinclude;
       var callback = function(element, req) {};
       this.includes = document.getElementsByTagName("hx:include");
       if (this.includes.length === 0) { // remove ns for IE
-        hincludeincludes = document.getElementsByTagName("include");
+        this.includes = document.getElementsByTagName("include");
       }
       if (mode == "async") {
         callback = this.set_content_async;
