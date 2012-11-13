@@ -1,3 +1,2 @@
 language: node_js
-before_script: "test/serve.sh 8080 &"
 script: "cd test; make"

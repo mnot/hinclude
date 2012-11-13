@@ -1,11 +1,15 @@
 
+test_port=8081
 test: basic none
 
-basic:
-	phantomjs basic.js 8080
+basic: server
+	phantomjs basic.js $(test_port)
 
-none: 
-	phantomjs none.js 8080
+none: server
+	phantomjs none.js $(test_port)
 
 lint:
 	jslint --terse ../hinclude.js
+
+server:
+	./serve.sh $(test_port)
