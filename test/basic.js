@@ -5,4 +5,4 @@ var tests = [
   ["#b", "this text overwrote what was just there."]
 ];
 
-runTests(tests);
+runTests("basic.html", tests);

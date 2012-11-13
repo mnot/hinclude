@@ -1,4 +1,5 @@
 
+test: basic
 
-test:
+basic:
 	phantomjs basic.js 8080

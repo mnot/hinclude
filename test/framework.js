@@ -3,7 +3,7 @@ var webpage = require('webpage');
 
 
 
-function runTests(tests) {
+function runTests(page_loc, tests) {
   var port = args[1];
   var errors = [];
   var page = webpage.create();
@@ -25,7 +25,7 @@ function runTests(tests) {
       console.log('BROWSER CONSOLE: ' + msg);
   };
 
-  page.open('http://localhost:' + port + '/basic.html', function (status) {
+  page.open('http://localhost:' + port + '/' + page_loc, function (status) {
     if (status === "success") {
       console.log("testing " + port + "...");
     } else {
