@@ -97,7 +97,14 @@ var hinclude;
         for (var i=0; i < codeJs.length; i++) {
            var code = codeJs[i].innerHTML;
            eval(code);
-           codeJs[i].parentNode.removeChild(codeJs[i]);
+        }
+        this.removeTagScript(codeJs);
+    },
+    
+    removeTagScript: function (codeJs) {
+        for (var i=0; i < codeJs.length; i++) {
+            codeJs[i].parentNode.removeChild(codeJs[i]);
+            i--;
         }
     },
 
