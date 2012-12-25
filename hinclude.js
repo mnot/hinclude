@@ -73,11 +73,14 @@ var hinclude = {
       setTimeout("hinclude.show_buffered_content()", timeout);
     }
     for (var i=0; i < includes.length; i++) {
-      this.include(includes[i], includes[i].getAttribute("src"), callback);
+      this.include(includes[i], includes[i].getAttribute("src"), includes[i].getAttribute("media"), callback);
     }
   },
 
-  include: function (element, url, incl_cb) {
+  include: function (element, url, media, incl_cb) {
+    if(media && !window.matchMedia(media).matches){
+        return;
+    }
     var scheme = url.substring(0,url.indexOf(":"));
     if (scheme.toLowerCase() == "data") { // just text/plain for now
       var data = unescape(url.substring(url.indexOf(",") + 1, url.length));
