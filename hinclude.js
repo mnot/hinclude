@@ -37,12 +37,14 @@ var hinclude;
 
   hinclude = {
     classprefix: "include_",
+    move_head_to_document: true, // moved head script into document head
+    remove_js: true, // removes script by content
 
     set_content_async: function (element, req) {
       if (req.readyState === 4) {
         if (req.status === 200 || req.status === 304) {
           element.innerHTML = req.responseText;
-          this.runHincludeJs(element);
+          this.hinclude_check_content(element, req.responseText);
         }
         element.className = hinclude.classprefix + req.status;
       }
@@ -58,13 +60,12 @@ var hinclude;
         }
       }
     },
-
+    
     show_buffered_content: function () {
       while (hinclude.buffer.length > 0) {
         var include = hinclude.buffer.pop();
         if (include[1].status === 200 || include[1].status === 304) {
-          include[0].innerHTML = include[1].responseText;
-          this.runHincludeJs(include[0]);
+          this.hinclude_check_content(include, include[1].responseText);
         }
         include[0].className = hinclude.classprefix + include[1].status;
       }
@@ -92,19 +93,145 @@ var hinclude;
       }
     },
     
-    runHincludeJs: function (element) {
-        var codeJs = element.getElementsByTagName("script");
-        for (var i=0; i < codeJs.length; i++) {
-           var code = codeJs[i].innerHTML;
-           eval(code);
+    // converte text into xml node
+    hinclude_xml_parser_content: function (content) {
+        var parsed_document;
+        if (window.ActiveXObject){// for Internet Explorer
+            parsed_document = new ActiveXObject('Microsoft.XMLDOM');
+            parsed_document.async='false';
+            parsed_document.loadXML(content);
+            if(parsed_document.parseError.errorCode != 0) {
+                parsed_document = false;
+            }
+        } else {
+            var parser = new DOMParser();
+            parsed_document = parser.parseFromString(content,'text/xml');
+            if(parsed_document.getElementsByTagName("parsererror").length > 0) {
+                parsed_document = false;
+            }
         }
-        this.removeTagScript(codeJs);
+        return parsed_document;
     },
     
-    removeTagScript: function (codeJs) {
-        for (var i=0; i < codeJs.length; i++) {
-            codeJs[i].parentNode.removeChild(codeJs[i]);
-            i--;
+    // verification content hinclude
+    hinclude_check_content: function(include, content) {
+        var parsed_document = this.hinclude_xml_parser_content(content);
+        this.hinclude_check_head_script(parsed_document);
+        this.move_html_to_hinclude(include, parsed_document, content);
+        var js_onload = this.hinclude_check_onload_body(parsed_document);
+        var js_code = this.hinclude_check_js_code(include);
+        this.run_hinclude_js(js_onload, js_code);
+    },
+    
+    // verificarion exist head script
+    hinclude_check_head_script: function(parsed_document) {
+        //xml document
+        if(parsed_document) {
+            var head = parsed_document.getElementsByTagName('head');
+            if(head.length > 0) {
+                var script = head[0].getElementsByTagName('script');
+                if(script) {
+                    this.hinclude_move_head_script_to_document(script[0]);
+                }
+            }
+        }
+    },
+    
+    // verification exist onload event
+    hinclude_check_onload_body: function (parsed_document) {
+        //xml document
+        if(parsed_document) {
+            var body = parsed_document.getElementsByTagName('body');
+            var onload = false;
+            if(body.length > 0){
+                if(body[0].getAttribute('onload')){
+                    onload = body[0].getAttribute('onload');
+                }
+            }
+            return onload;
+        }
+        return false;
+    },
+    
+    // moved head script into document head
+    hinclude_move_head_script_to_document: function(script) {
+        if(hinclude.move_head_to_document) {
+            var document_head= document.getElementsByTagName('head')[0];
+            var document_script= document.createElement('script');
+            document_script.type= 'text/javascript';
+            try {
+                document_script.innerHTML = script.textContent;
+            }catch (e) {
+                // Internet Explorer
+                document_script.text = script.text;
+            }
+            document_head.appendChild(document_script);
+            script.parentNode.removeChild(script);
+        }
+    },
+    
+    // inserts html content into hinclude
+    move_html_to_hinclude: function(include, parsed_document, content) {
+        var string;
+        if(parsed_document) {
+            string = this.xml_to_string(parsed_document);
+        }else{
+            string = content;
+        }
+        include[0].innerHTML = string;
+    },
+    
+    // convert xml node into string
+    xml_to_string: function(parsed_document) {
+        try {
+          // Gecko-based browsers, Safari, Opera.
+          return (new XMLSerializer()).serializeToString(parsed_document);
+        }
+        catch (e) {
+          try {
+            // Internet Explorer.
+            return parsed_document.xml;
+          }
+          catch (e)
+          {//Strange Browser ??
+           alert('Xmlserializer not supported');
+          }
+        }
+        return false;
+    },
+    
+    // verification exists scripts into content
+    hinclude_check_js_code: function(include) {
+        var js = include[0].getElementsByTagName("script");
+        var js_code = '';
+        if(js.length > 0) {
+            var code = '';
+            for (var i=0; i < js.length; i++) {
+               code = js[i].innerHTML;
+               js_code = js_code+code;
+            }
+            this.hinclude_remove_tag_script(js);
+        }
+        return js_code;
+    },
+    
+    // removes script by content
+    hinclude_remove_tag_script: function (js) {
+        if(hinclude.remove_js) {
+            for (var i=0; i < js.length; i++) {
+                js[i].parentNode.removeChild(js[i]);
+                i--;
+            }
+        }
+    },
+    
+    // execute code js
+    run_hinclude_js: function (js_onload, js_code) {
+        if(js_code) {
+            eval(js_code);
+        }
+        if(js_onload) {
+            eval(js_onload);
         }
     },
 
