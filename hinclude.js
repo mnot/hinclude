@@ -44,7 +44,7 @@ var hinclude;
       if (req.readyState === 4) {
         if (req.status === 200 || req.status === 304) {
           element.innerHTML = req.responseText;
-          this.hinclude_check_content(element, req.responseText);
+          hinclude.hinclude_check_content(element, req.responseText);
         }
         element.className = hinclude.classprefix + req.status;
       }
@@ -62,10 +62,11 @@ var hinclude;
     },
     
     show_buffered_content: function () {
+      if(hinclude.isEmpty(hinclude.buffer)){ return false; }
       while (hinclude.buffer.length > 0) {
         var include = hinclude.buffer.pop();
         if (include[1].status === 200 || include[1].status === 304) {
-          this.hinclude_check_content(include, include[1].responseText);
+            hinclude.hinclude_check_content(include, include[1].responseText);
         }
         include[0].className = hinclude.classprefix + include[1].status;
       }
@@ -95,21 +96,23 @@ var hinclude;
     
     // converte text into xml node
     hinclude_xml_parser_content: function (content) {
-        var parsed_document;
-        if (window.ActiveXObject){// for Internet Explorer
-            parsed_document = new ActiveXObject('Microsoft.XMLDOM');
-            parsed_document.async='false';
-            parsed_document.loadXML(content);
-            if(parsed_document.parseError.errorCode != 0) {
-                parsed_document = false;
+        var parsed_document = false;
+	if(!hinclude.isEmpty(content)) {
+            if (window.ActiveXObject){// for Internet Explorer
+                parsed_document = new ActiveXObject('Microsoft.XMLDOM');
+                parsed_document.async='false';
+                parsed_document.loadXML(content);
+                if(parsed_document.parseError.errorCode != 0) {
+                    parsed_document = false;
+                }
+            } else {
+                var parser = new DOMParser();
+                parsed_document = parser.parseFromString(content,'text/xml');
+                if(parsed_document.getElementsByTagName("parsererror").length > 0) {
+                    parsed_document = false;
+                }
             }
-        } else {
-            var parser = new DOMParser();
-            parsed_document = parser.parseFromString(content,'text/xml');
-            if(parsed_document.getElementsByTagName("parsererror").length > 0) {
-                parsed_document = false;
-            }
-        }
+	}
         return parsed_document;
     },
     
@@ -126,11 +129,11 @@ var hinclude;
     // verificarion exist head script
     hinclude_check_head_script: function(parsed_document) {
         //xml document
-        if(parsed_document) {
+        if(!hinclude.isEmpty(parsed_document)) {
             var head = parsed_document.getElementsByTagName('head');
             if(head.length > 0) {
                 var script = head[0].getElementsByTagName('script');
-                if(script) {
+                if(!hinclude.isEmpty(script)) {
                     this.hinclude_move_head_script_to_document(script[0]);
                 }
             }
@@ -140,22 +143,22 @@ var hinclude;
     // verification exist onload event
     hinclude_check_onload_body: function (parsed_document) {
         //xml document
-        if(parsed_document) {
+        if(!hinclude.isEmpty(parsed_document)) {
             var body = parsed_document.getElementsByTagName('body');
             var onload = false;
             if(body.length > 0){
-                if(body[0].getAttribute('onload')){
+                if(!hinclude.isEmpty(body[0].getAttribute('onload'))){
                     onload = body[0].getAttribute('onload');
                 }
             }
             return onload;
         }
-        return false;
+        return '';
     },
     
     // moved head script into document head
     hinclude_move_head_script_to_document: function(script) {
-        if(hinclude.move_head_to_document) {
+        if(!hinclude.isEmpty(script) && !hinclude.isEmpty(hinclude.move_head_to_document)) {
             var document_head= document.getElementsByTagName('head')[0];
             var document_script= document.createElement('script');
             document_script.type= 'text/javascript';
@@ -163,7 +166,7 @@ var hinclude;
                 document_script.innerHTML = script.textContent;
             }catch (e) {
                 // Internet Explorer
-                document_script.text = script.text;
+		document_script.text = script.text;
             }
             document_head.appendChild(document_script);
             script.parentNode.removeChild(script);
@@ -172,12 +175,12 @@ var hinclude;
     
     // inserts html content into hinclude
     move_html_to_hinclude: function(include, parsed_document, content) {
-        var string;
-        if(parsed_document) {
+        var string = '';
+        if(!hinclude.isEmpty(parsed_document)) {
             string = this.xml_to_string(parsed_document);
-        }else{
-            string = content;
-        }
+        } else if(!hinclude.isEmpty(content)) {
+	    string = content;
+	}
         include[0].innerHTML = string;
     },
     
@@ -199,25 +202,38 @@ var hinclude;
         }
         return false;
     },
+
+    isEmpty: function(value, x) {
+        if (value === null || value === undefined) return true;
+        if (value.length && value.length > 0)    return false;
+        if (value.length === 0)  return true;
+
+        for (var key in value) {
+            if (hasOwnProperty.call(value, key))    return false;
+        }
+        return true;
+    },
     
     // verification exists scripts into content
     hinclude_check_js_code: function(include) {
-        var js = include[0].getElementsByTagName("script");
-        var js_code = '';
-        if(js.length > 0) {
-            var code = '';
-            for (var i=0; i < js.length; i++) {
-               code = js[i].innerHTML;
-               js_code = js_code+code;
+	var js_code = '';
+	if(!hinclude.isEmpty(include)) {
+            var js = include[0].getElementsByTagName("script");
+            if(js.length > 0) {
+                var code = '';
+                for (var i=0; i < js.length; i++) {
+                   code = js[i].innerHTML;
+                   js_code = js_code+code;
+                }
+                this.hinclude_remove_tag_script(js);
             }
-            this.hinclude_remove_tag_script(js);
-        }
+	}
         return js_code;
     },
     
     // removes script by content
     hinclude_remove_tag_script: function (js) {
-        if(hinclude.remove_js) {
+        if(!hinclude.isEmpty(js) && !hinclude.isEmpty(hinclude.remove_js)) {
             for (var i=0; i < js.length; i++) {
                 js[i].parentNode.removeChild(js[i]);
                 i--;
@@ -227,10 +243,10 @@ var hinclude;
     
     // execute code js
     run_hinclude_js: function (js_onload, js_code) {
-        if(js_code) {
+        if(!hinclude.isEmpty(js_code)) {
             eval(js_code);
         }
-        if(js_onload) {
+        if(!hinclude.isEmpty(js_onload)) {
             eval(js_onload);
         }
     },
@@ -284,13 +300,14 @@ var hinclude;
     },
 
     get_meta: function (name, value_default) {
-      var m = 0;
       var metas = document.getElementsByTagName("meta");
-      for (m; m < metas.length; m += 1) {
-        var meta_name = metas[m].getAttribute("name");
-        if (meta_name === name) {
-          return metas[m].getAttribute("content");
-        }
+      if(!hinclude.isEmpty(metas)) {
+          for (var m = 0; m < metas.length; m += 1) {
+            var meta_name = metas[m].getAttribute("name");
+            if (meta_name === name) {
+              return metas[m].getAttribute("content");
+            }
+          }
       }
       return value_default;
     },
