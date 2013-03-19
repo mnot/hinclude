@@ -158,7 +158,7 @@ var hinclude;
     
     	// moved head script into document head
     	hinclude_move_head_script_to_document: function(script) {
-        	if(!hinclude.isEmpty(script) && !hinclude.isEmpty(hinclude.move_head_to_document)) {
+        	if(!hinclude.isEmpty(script) && hinclude.move_head_to_document) {
             	var document_head= document.getElementsByTagName('head')[0];
             	var document_script= document.createElement('script');
             	document_script.type= 'text/javascript';
