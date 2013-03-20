@@ -33,287 +33,302 @@ var hinclude;
 
 (function () {
 
-	"use strict";
+    "use strict";
 
-	hinclude = {
-    	classprefix: "include_",
-    	move_head_to_document: true, // moved head script into document head
-    	remove_js: true, // removes script by content
+    hinclude = {
+        classprefix: "include_",
+        move_head_to_document: true, // moved head script into document head
+        remove_js: true, // removes script by content
 
-    	set_content_async: function (element, req) {
-        	if (req.readyState === 4) {
-        		if (req.status === 200 || req.status === 304) {
-          			element.innerHTML = req.responseText;
-          			hinclude.hinclude_check_content(element, req.responseText);
-        		}
-        		element.className = hinclude.classprefix + req.status;
-      		}
-    	},
+        set_content_async: function (element, req) {
+            if (req.readyState === 4) {
+                if (req.status === 200 || req.status === 304) {
+                    element.innerHTML = req.responseText;
+                    hinclude.hinclude_check_content(element, req.responseText);
+                }
+                element.className = hinclude.classprefix + req.status;
+            }
+        },
 
-		buffer: [],
-    	set_content_buffered: function (element, req) {
-			if (req.readyState === 4) {
-        		hinclude.buffer.push([element, req]);
-        		hinclude.outstanding -= 1;
-        		if (hinclude.outstanding === 0) {
-          			hinclude.show_buffered_content();
-        		}
-      		}
-    	},
+        buffer: [],
+        set_content_buffered: function (element, req) {
+            if (req.readyState === 4) {
+                hinclude.buffer.push([element, req]);
+                hinclude.outstanding -= 1;
+                if (hinclude.outstanding === 0) {
+                    hinclude.show_buffered_content();
+                }
+            }
+        },
     
-    	show_buffered_content: function () {
-    		if(hinclude.isEmpty(hinclude.buffer)){ return false; }
-      			while (hinclude.buffer.length > 0) {
-        		var include = hinclude.buffer.pop();
-        		if (include[1].status === 200 || include[1].status === 304) {
-            		hinclude.hinclude_check_content(include, include[1].responseText);
-        		}
-        		include[0].className = hinclude.classprefix + include[1].status;
-      		}
-    	},
+        show_buffered_content: function () {
+            if(hinclude.isEmpty(hinclude.buffer)){
+                return false;
+            }
+            while (hinclude.buffer.length > 0) {
+                var include = hinclude.buffer.pop();
+                if (include[1].status === 200 || include[1].status === 304) {
+                    hinclude.hinclude_check_content(include, include[1].responseText);
+                }
+                include[0].className = hinclude.classprefix + include[1].status;
+            }
+        },
 
-    	outstanding: 0,
-    	includes: [],
-    	run: function () {
-    		var i = 0;
-      		var mode = this.get_meta("include_mode", "buffered");
-      		var callback = function (element, req) {};
-      		this.includes = document.getElementsByTagName("hx:include");
-      		if (this.includes.length === 0) { // remove ns for IE
-        		this.includes = document.getElementsByTagName("include");
-      		}
-      		if (mode === "async") {
-        		callback = this.set_content_async;
-      		} else if (mode === "buffered") {
-        		callback = this.set_content_buffered;
-        		var timeout = this.get_meta("include_timeout", 2.5) * 1000;
-        		setTimeout(hinclude.show_buffered_content, timeout);
-      		}
-      		for (i; i < this.includes.length; i += 1) {
-        		this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
-      		}
-    	},
+        outstanding: 0,
+        includes: [],
+        run: function () {
+            var i = 0;
+            var mode = this.get_meta("include_mode", "buffered");
+            var callback = function (element, req) {};
+            this.includes = document.getElementsByTagName("hx:include");
+            if (this.includes.length === 0) { // remove ns for IE
+                this.includes = document.getElementsByTagName("include");
+            }
+            if (mode === "async") {
+                callback = this.set_content_async;
+            } else if (mode === "buffered") {
+                callback = this.set_content_buffered;
+                var timeout = this.get_meta("include_timeout", 2.5) * 1000;
+                setTimeout(hinclude.show_buffered_content, timeout);
+            }
+            for (i; i < this.includes.length; i += 1) {
+                this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
+            }
+        },
     
-    	// convert text into xml node
-    	hinclude_xml_parser_content: function (content) {
-    		var parsed_document = false;
-			if(!hinclude.isEmpty(content)) {
-        		if (window.ActiveXObject){// for Internet Explorer
-                	parsed_document = new ActiveXObject('Microsoft.XMLDOM');
-                	parsed_document.async='false';
-                	parsed_document.loadXML(content);
-                	if(parsed_document.parseError.errorCode != 0) {
-                    	parsed_document = false;
-                	}
-            	} else {
-                	var parser = new DOMParser();
-                	parsed_document = parser.parseFromString(content,'text/xml');
-                	if(parsed_document.getElementsByTagName("parsererror").length > 0) {
-                    	parsed_document = false;
-                	}
-            	}
-			}
-        	return parsed_document;
-    	},
+        // convert text into xml node
+        hinclude_xml_parser_content: function (content) {
+            var parsed_document = false;
+            if(!hinclude.isEmpty(content)) {
+                if (window.ActiveXObject){// for Internet Explorer
+                    parsed_document = new ActiveXObject('Microsoft.XMLDOM');
+                    parsed_document.async='false';
+                    parsed_document.loadXML(content);
+                    if(parsed_document.parseError.errorCode != 0) {
+                        parsed_document = false;
+                    }
+                } else {
+                    var parser = new DOMParser();
+                    parsed_document = parser.parseFromString(content,'text/xml');
+                    if(parsed_document.getElementsByTagName("parsererror").length > 0) {
+                        parsed_document = false;
+                    }
+                }
+            }
+            return parsed_document;
+        },
     
-    	// verification content hinclude
-    	hinclude_check_content: function(include, content) {
-        	var parsed_document = this.hinclude_xml_parser_content(content);
-        	this.hinclude_check_head_script(parsed_document);
-        	this.move_html_to_hinclude(include, parsed_document, content);
-        	var js_onload = this.hinclude_check_onload_body(parsed_document);
-        	var js_code = this.hinclude_check_js_code(include);
-        	this.run_hinclude_js(js_onload, js_code);
-    	},
+        // verification content hinclude
+        hinclude_check_content: function(include, content) {
+            var parsed_document = this.hinclude_xml_parser_content(content);
+            this.hinclude_check_head_script(parsed_document);
+            this.move_html_to_hinclude(include, parsed_document, content);
+            var js_onload = this.hinclude_check_onload_body(parsed_document);
+            var js_code = this.hinclude_check_js_code(include);
+            this.run_hinclude_js(js_onload, js_code);
+        },
     
-    	// verificarion exist head script
-    	hinclude_check_head_script: function(parsed_document) {
-        	//xml document
-        	if(!hinclude.isEmpty(parsed_document)) {
-        		var head = parsed_document.getElementsByTagName('head');
-            	if(head.length > 0) {
-                	var script = head[0].getElementsByTagName('script');
-                	if(!hinclude.isEmpty(script)) {
-                    	this.hinclude_move_head_script_to_document(script[0]);
-                	}
-            	}
-        	}
-    	},
+        // verificarion exist head script
+        hinclude_check_head_script: function(parsed_document) {
+            //xml document
+            if(!hinclude.isEmpty(parsed_document)) {
+                var head = parsed_document.getElementsByTagName('head');
+                if(head.length > 0) {
+                    var script = head[0].getElementsByTagName('script');
+                    if(!hinclude.isEmpty(script)) {
+                        this.hinclude_move_head_script_to_document(script[0]);
+                    }
+                }
+            }
+        },
     
-    	// verification exist onload event
-    	hinclude_check_onload_body: function (parsed_document) {
-        	//xml document
-        	if(!hinclude.isEmpty(parsed_document)) {
-            	var body = parsed_document.getElementsByTagName('body');
-            	var onload = false;
-            	if(body.length > 0){
-                	if(!hinclude.isEmpty(body[0].getAttribute('onload'))){
-                    	onload = body[0].getAttribute('onload');
-                	}
-            	}
-            	return onload;
-        	}
-        	return '';
-    	},
+        // verification exist onload event
+        hinclude_check_onload_body: function (parsed_document) {
+            //xml document
+            if(!hinclude.isEmpty(parsed_document)) {
+                var body = parsed_document.getElementsByTagName('body');
+                var onload = false;
+                if(body.length > 0){
+                    if(!hinclude.isEmpty(body[0].getAttribute('onload'))){
+                        onload = body[0].getAttribute('onload');
+                    }
+                }
+                return onload;
+            }
+            return '';
+        },
     
-    	// moved head script into document head
-    	hinclude_move_head_script_to_document: function(script) {
-        	if(!hinclude.isEmpty(script) && hinclude.move_head_to_document) {
-            	var document_head= document.getElementsByTagName('head')[0];
-            	var document_script= document.createElement('script');
-            	document_script.type= 'text/javascript';
-            	try {
-                	document_script.innerHTML = script.textContent;
-            	}catch (e) {
-                	// Internet Explorer
-					document_script.text = script.text;
-            	}
-            	document_head.appendChild(document_script);
-            	script.parentNode.removeChild(script);
-        	}
-    	},
+        // moved head script into document head
+        hinclude_move_head_script_to_document: function(script) {
+            if(!hinclude.isEmpty(script) && hinclude.move_head_to_document) {
+                var document_head= document.getElementsByTagName('head')[0];
+                var document_script= document.createElement('script');
+                document_script.type= 'text/javascript';
+                try {
+                    document_script.innerHTML = script.textContent;
+                }catch (e) {
+                    // Internet Explorer
+                    document_script.text = script.text;
+                }
+                document_head.appendChild(document_script);
+                script.parentNode.removeChild(script);
+            }
+        },
     
-    	// inserts html content into hinclude
-    	move_html_to_hinclude: function(include, parsed_document, content) {
-        	var string = '';
-        	if(!hinclude.isEmpty(parsed_document)) {
-            	string = this.xml_to_string(parsed_document);
-        	} else if(!hinclude.isEmpty(content)) {
-	    		string = content;
-			}
-        	include[0].innerHTML = string;
-    	},
+        // inserts html content into hinclude
+        move_html_to_hinclude: function(include, parsed_document, content) {
+            var string = '';
+            if(!hinclude.isEmpty(parsed_document)) {
+                string = this.xml_to_string(parsed_document);
+            } else if(!hinclude.isEmpty(content)) {
+                string = content;
+            }
+            include[0].innerHTML = string;
+        },
     
-    	// convert xml node into string
-    	xml_to_string: function(parsed_document) {
-        	try {
-        		// Gecko-based browsers, Safari, Opera.
-          		return (new XMLSerializer()).serializeToString(parsed_document);
-        	}
-        	catch (e) {
-        		try {
-            		// Internet Explorer.
-            		return parsed_document.xml;
-          		}
-          		catch (e)
-          		{
-          			//Strange Browser ??
-           			alert('Xmlserializer not supported');
-          		}
-        	}
-        	return false;
-    	},
+        // convert xml node into string
+        xml_to_string: function(parsed_document) {
+            try {
+                // Gecko-based browsers, Safari, Opera.
+                return (new XMLSerializer()).serializeToString(parsed_document);
+            }
+            catch (e) {
+                try {
+                    // Internet Explorer.
+                    return parsed_document.xml;
+                }
+                catch (e)
+                {
+                    //Strange Browser ??
+                    alert('Xmlserializer not supported');
+                }
+            }
+            return false;
+        },
 
-    	isEmpty: function(value) {
-        	if (value === null || value === undefined) return true;
-        	if (value.length && value.length > 0)    return false;
-        	if (value.length === 0)  return true;
+        isEmpty: function(value) {
+            if (value === null || value === undefined) return true;
+            if (value.length && value.length > 0)    return false;
+            if (value.length === 0)  return true;
 
-        	for (var key in value) {
-            	if (hasOwnProperty.call(value, key))    return false;
-        	}
-        	return true;
-    	},
+            for (var key in value) {
+                if (hasOwnProperty.call(value, key))    return false;
+            }
+            return true;
+        },
+
+        get_content_jsfile: function (element, req) {
+            if (req.readyState === 4) {
+                if (req.status === 200 || req.status === 304) {
+                    hinclude.run_hinclude_js(null, req.responseText);
+                }
+            }
+        },
     
-    	// verification exists scripts into content
-    	hinclude_check_js_code: function(include) {
-			var js_code = '';
-			if(!hinclude.isEmpty(include)) {
-        		var js = include[0].getElementsByTagName("script");
-            	if(js.length > 0) {
-                	var code = '';
-                	for (var i=0; i < js.length; i++) {
-                   		code = js[i].innerHTML;
-                   		js_code = js_code+code;
-                	}
-                	this.hinclude_remove_tag_script(js);
-            	}
-			}
-        	return js_code;
-    	},
+        // verification exists scripts into content
+        hinclude_check_js_code: function(include) {
+            var js_code = '';
+            if(!hinclude.isEmpty(include)) {
+                var js = include[0].getElementsByTagName("script");
+                if(js.length > 0) {
+                    var code = '';
+                    var callback = this.get_content_jsfile;
+                    for (var i=0; i < js.length; i++) {
+                        if(js[i].src) {
+                            this.include(null,js[i].src,callback);
+                        } else {
+                            code = js[i].innerHTML;
+                            js_code = js_code+code;   
+                        }
+                    }
+                    this.hinclude_remove_tag_script(js);
+                }
+            }
+            return js_code;
+        },
     
-    	// removes script by content
-    	hinclude_remove_tag_script: function (js) {
-        	if(!hinclude.isEmpty(js) && !hinclude.isEmpty(hinclude.remove_js)) {
-            	for (var i=0; i < js.length; i++) {
-                	js[i].parentNode.removeChild(js[i]);
-                	i--;
-            	}
-        	}
-    	},
+        // removes script by content
+        hinclude_remove_tag_script: function (js) {
+            if(!hinclude.isEmpty(js) && !hinclude.isEmpty(hinclude.remove_js)) {
+                for (var i=0; i < js.length; i++) {
+                    js[i].parentNode.removeChild(js[i]);
+                    i--;
+                }
+            }
+        },
     
-    	// execute code js
-    	run_hinclude_js: function (js_onload, js_code) {
-        	if(!hinclude.isEmpty(js_code)) {
-            	eval(js_code);
-        	}
-        	if(!hinclude.isEmpty(js_onload)) {
-            	eval(js_onload);
-        	}
-    	},
+        // execute code js
+        run_hinclude_js: function (js_onload, js_code) {
+            if(!hinclude.isEmpty(js_code)) {
+                eval(js_code);
+            }
+            if(!hinclude.isEmpty(js_onload)) {
+                eval(js_onload);
+            }
+        },
 
-    	include: function (element, url, incl_cb) {
-    		var scheme = url.substring(0, url.indexOf(":"));
-      		if (scheme.toLowerCase() === "data") { // just text/plain for now
-        		var data = decodeURIComponent(url.substring(url.indexOf(",") + 1, url.length));
-        		element.innerHTML = data;
-      		} else {
-        		var req = false;
-        		if (window.XMLHttpRequest) {
-          			try {
-            			req = new XMLHttpRequest();
-          			} catch (e1) {
-            			req = false;
-          			}
-        		} else if (window.ActiveXObject) {
-          			try {
-            			req = new ActiveXObject("Microsoft.XMLHTTP");
-          			} catch (e2) {
-            			req = false;
-          			}
-        		}
-        		if (req) {
-          			this.outstanding += 1;
-          			req.onreadystatechange = function () {
-            			incl_cb(element, req);
-          			};
-          			try {
-            			req.open("GET", url, true);
-            			req.send("");
-          			} catch (e3) {
-            			this.outstanding -= 1;
-            			alert("Include error: " + url + " (" + e3 + ")");
-          			}
-        		}
-      		}
-    	},
+        include: function (element, url, incl_cb) {
+            var scheme = url.substring(0, url.indexOf(":"));
+            if (scheme.toLowerCase() === "data") { // just text/plain for now
+                var data = decodeURIComponent(url.substring(url.indexOf(",") + 1, url.length));
+                element.innerHTML = data;
+            } else {
+                var req = false;
+                if (window.XMLHttpRequest) {
+                    try {
+                        req = new XMLHttpRequest();
+                    } catch (e1) {
+                        req = false;
+                    }
+                } else if (window.ActiveXObject) {
+                    try {
+                        req = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (e2) {
+                        req = false;
+                    }
+                }
+                if (req) {
+                    this.outstanding += 1;
+                    req.onreadystatechange = function () {
+                        incl_cb(element, req);
+                    };
+                    try {
+                        req.open("GET", url, true);
+                        req.send("");
+                    } catch (e3) {
+                        this.outstanding -= 1;
+                        alert("Include error: " + url + " (" + e3 + ")");
+                    }
+                }
+            }
+        },
 
-    	refresh: function (element_id) {
-    		var i = 0;
-      		var mode = this.get_meta("include_mode", "buffered");
-      		var callback = function (element, req) {};
-      		callback = this.set_content_buffered;
-      		for (i; i < this.includes.length; i += 1) {
-        		if (this.includes[i].getAttribute("id") === element_id) {
-          			this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
-        		}
-      		}
-    	},
+        refresh: function (element_id) {
+            var i = 0;
+            var mode = this.get_meta("include_mode", "buffered");
+            var callback = function (element, req) {};
+            callback = this.set_content_buffered;
+            for (i; i < this.includes.length; i += 1) {
+                if (this.includes[i].getAttribute("id") === element_id) {
+                    this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
+                }
+            }
+        },
 
-    	get_meta: function (name, value_default) {
-    		var metas = document.getElementsByTagName("meta");
-      		if(!hinclude.isEmpty(metas)) {
-        		for (var m = 0; m < metas.length; m += 1) {
-            		var meta_name = metas[m].getAttribute("name");
-            		if (meta_name === name) {
-              			return metas[m].getAttribute("content");
-            		}
-          		}
-      		}
-      		return value_default;
-    	},
+        get_meta: function (name, value_default) {
+            var metas = document.getElementsByTagName("meta");
+            if(!hinclude.isEmpty(metas)) {
+                for (var m = 0; m < metas.length; m += 1) {
+                    var meta_name = metas[m].getAttribute("name");
+                    if (meta_name === name) {
+                        return metas[m].getAttribute("content");
+                    }
+                }
+            }
+            return value_default;
+        },
 
-    	/*
+        /*
      	* (c)2006 Dean Edwards/Matthias Miller/John Resig
      	* Special thanks to Dan Webb's domready.js Prototype extension
      	* and Simon Willison's addLoadEvent
@@ -323,32 +338,34 @@ var hinclude;
      	*
      	* Thrown together by Jesse Skinner (http://www.thefutureoftheweb.com/)
      	*/
-    	addDOMLoadEvent: function (func) {
-    		if (!window.__load_events) {
-        		var init = function () {
-          			var i = 0;
-          			// quit if this function has already been called
-          			if (hinclude.addDOMLoadEvent.done) {return; }
-          			hinclude.addDOMLoadEvent.done = true;
-          			if (window.__load_timer) {
-            			clearInterval(window.__load_timer);
-            			window.__load_timer = null;
-          			}
-          			for (i; i < window.__load_events.length; i += 1) {
-            			window.__load_events[i]();
-          			}
-          			window.__load_events = null;
-          			// clean up the __ie_onload event
-          			/*@cc_on
+        addDOMLoadEvent: function (func) {
+            if (!window.__load_events) {
+                var init = function () {
+                    var i = 0;
+                    // quit if this function has already been called
+                    if (hinclude.addDOMLoadEvent.done) {
+                        return;
+                    }
+                    hinclude.addDOMLoadEvent.done = true;
+                    if (window.__load_timer) {
+                        clearInterval(window.__load_timer);
+                        window.__load_timer = null;
+                    }
+                    for (i; i < window.__load_events.length; i += 1) {
+                        window.__load_events[i]();
+                    }
+                    window.__load_events = null;
+                // clean up the __ie_onload event
+                /*@cc_on
           			document.getElementById("__ie_onload").onreadystatechange = "";
           			@*/
-        		};
-        		// for Mozilla/Opera9
-        		if (document.addEventListener) {
-          			document.addEventListener("DOMContentLoaded", init, false);
-        		}
-        		// for Internet Explorer
-        		/*@cc_on
+                };
+                // for Mozilla/Opera9
+                if (document.addEventListener) {
+                    document.addEventListener("DOMContentLoaded", init, false);
+                }
+                // for Internet Explorer
+                /*@cc_on
         		document.write(
           			"<scr"
             		+ "ipt id=__ie_onload defer src=javascript:void(0)><\/scr"
@@ -361,21 +378,23 @@ var hinclude;
           			}
         		};
 	        	@*/
-	        	// for Safari
-	        	if (/WebKit/i.test(navigator.userAgent)) { // sniff
-	        		window.__load_timer = setInterval(function () {
-	            		if (/loaded|complete/.test(document.readyState)) {
-	            			init();
-	            		}
-	          		}, 10);
-	        	}
-	        	// for other browsers
-	        	window.onload = init;
-	        	window.__load_events = [];
-      		}
-      		window.__load_events.push(func);
-		}
-	};
+                // for Safari
+                if (/WebKit/i.test(navigator.userAgent)) { // sniff
+                    window.__load_timer = setInterval(function () {
+                        if (/loaded|complete/.test(document.readyState)) {
+                            init();
+                        }
+                    }, 10);
+                }
+                // for other browsers
+                window.onload = init;
+                window.__load_events = [];
+            }
+            window.__load_events.push(func);
+        }
+    };
 
-	hinclude.addDOMLoadEvent(function () {hinclude.run(); });
+    hinclude.addDOMLoadEvent(function () {
+        hinclude.run();
+    });
 }());
