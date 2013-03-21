@@ -160,7 +160,7 @@ var hinclude;
     
         // moved head script into document head
         hinclude_move_head_script_to_document: function(script) {
-            if(!hinclude.isEmpty(script) && hinclude.move_head_to_document) {
+            if(script && hinclude.move_head_to_document) {
                 var document_head= document.getElementsByTagName('head')[0];
                 var document_script= document.createElement('script');
                 document_script.type= 'text/javascript';
@@ -217,11 +217,13 @@ var hinclude;
             return true;
         },
 
-        get_content_jsfile: function (element, req) {
-            if (req.readyState === 4) {
-                if (req.status === 200 || req.status === 304) {
-                    hinclude.run_hinclude_js(null, req.responseText);
-                }
+        move_jsfile_to_document: function (js_src) {
+            if(js_src) {
+                var document_head= document.getElementsByTagName('head')[0];
+                var document_script= document.createElement('script');
+                document_script.type= 'text/javascript';
+                document_script.src = js_src;
+                document_head.appendChild(document_script);
             }
         },
     
@@ -232,10 +234,9 @@ var hinclude;
                 var js = include[0].getElementsByTagName("script");
                 if(js.length > 0) {
                     var code = '';
-                    var callback = this.get_content_jsfile;
                     for (var i=0; i < js.length; i++) {
                         if(js[i].src) {
-                            this.include(null,js[i].src,callback);
+                            this.move_jsfile_to_document(js[i].src);
                         } else {
                             code = js[i].innerHTML;
                             js_code = js_code+code;   
