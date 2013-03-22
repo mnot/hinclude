@@ -250,7 +250,7 @@ var hinclude;
     
         // removes script by content
         hinclude_remove_tag_script: function (js) {
-            if(!hinclude.isEmpty(js) && !hinclude.isEmpty(hinclude.remove_js)) {
+            if(!hinclude.isEmpty(js) && hinclude.remove_js) {
                 for (var i=0; i < js.length; i++) {
                     js[i].parentNode.removeChild(js[i]);
                     i--;
