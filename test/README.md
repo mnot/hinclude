@@ -2,17 +2,22 @@
 Tests
 =====
 
-Running the tests needs:
+Requirements
+------------
 
- * [phantomjs](http://phantomjs.org)
+ * nodejs
+ * [phantomjs](http://phantomjs.org) (at least 1.8.* version)
  * Python
- * [jslint](http://www.jslint.com) (optional)
+
+After this we can set up the project
  
-Note that jslint is most easily installed with [npm](http://npmjs.org/).
+  > npm install
 
-Before the suite is run, start a server:
+Running tests locally
+---------------------
 
-  > ./serve.sh&
+  > cd test
+  > make
 
 Release Testing
 ---------------
