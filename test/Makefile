@@ -8,7 +8,7 @@ none: server
 	phantomjs none.js $(test_port)
 
 lint: 
-        node ../node_modules/jslint/bin/jslint.js ../hinclude.js
+	node ../node_modules/jslint/bin/jslint.js ../hinclude.js
 
 server:
 	./serve.sh $(test_port)
