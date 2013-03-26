@@ -117,6 +117,7 @@ var hinclude;
           };
           try {
             req.open("GET", url, true);
+            req.setRequestHeader("X_REQUESTED_WITH", "XMLHttpRequest");
             req.send("");
           } catch (e3) {
             this.outstanding -= 1;
