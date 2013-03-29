@@ -1,0 +1,1 @@
+document.getElementById('library').innerHTML = hinc.library + ' visible';

@@ -1,0 +1,23 @@
+<html>
+<head>
+<title>onLoad Test</title>
+<script language="javascript" type="text/javascript">
+    function doOnLoad(){
+        addScript('inject',"function foo(){ document.getElementById('onload').innerHTML = 'this onload is executed'; } foo();");
+    }
+
+
+    function addScript(inject,code){
+        var _in = document.getElementById('inject');
+        var scriptNode = document.createElement('script');
+        scriptNode.innerHTML = code;
+        _in.appendChild(scriptNode);
+    }
+
+</script>
+</head>
+<body onload="doOnLoad();">
+    <span id="onload" style="text-decoration: underline">error</span>
+    <div id="inject"></div>
+</body>
+</html>

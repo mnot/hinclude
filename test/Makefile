@@ -1,6 +1,9 @@
 
 test_port=8081
-test: basic none
+test: advanced basic none
+
+advanced: server
+	phantomjs advanced.js $(test_port)
 
 basic: server
 	phantomjs basic.js $(test_port)
