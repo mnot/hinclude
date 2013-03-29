@@ -3,16 +3,19 @@ var webpage = require('webpage');
 
 
 
-function runTests(page_loc, tests) {
+function runTests(page_loc, tests, viewport) {
   var port = args[1];
   var errors = [];
   var page = webpage.create();
+  if(viewport){
+      page.viewportSize = viewport;
+  }
 
   function checkContent(selector, expected) {
       var a = page.evaluate(function(selector) {
         return document.querySelector(selector).textContent;
       }, selector);
-      if (a != expected) {
+      if (a.trim() != expected) {
         errors.push(selector + ': "' + a + "\" is not \"" + expected + '"');
       }
   }
