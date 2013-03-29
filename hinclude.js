@@ -218,6 +218,6 @@ var hinclude;
     }
   };
 
-  hinclude.addDOMLoadEvent(function() { hinclude.run(); });
+  hinclude.addDOMLoadEvent(function () { hinclude.run(); });
 }());
 
