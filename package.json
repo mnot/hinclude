@@ -1,0 +1,18 @@
+{
+    "name": "Hinclude",
+    "version": "1.0.1",
+    "author": "Mark Nottingham <mnot@mnot.com>",
+    "description": "Declarative client-side inclusion for the Web",
+    "contributors": [ 
+      {
+        "name": "Fabio Fabbrucci",
+        "email": "fabio.fabbrucci@gmail.com"
+      } 
+    ],
+     "dependencies" : {
+        "jslint"   :  "*"
+      },
+    "engines": {
+        "node": ">= 0.6.0"
+    }
+}
