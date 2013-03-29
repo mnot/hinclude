@@ -92,7 +92,7 @@ var hinclude;
     },
 
     include: function (element, url, media, incl_cb) {
-      if(media && !window.matchMedia(media).matches){
+      if(media && window.matchMedia && !window.matchMedia(media).matches){
           return;
       }
       var scheme = url.substring(0, url.indexOf(":"));
