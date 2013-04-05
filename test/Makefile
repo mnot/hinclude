@@ -1,6 +1,6 @@
 
 test_port=8081
-test: advanced basic none
+test: advanced basic none lint
 
 advanced: server
 	phantomjs advanced.js $(test_port)
@@ -12,7 +12,7 @@ none: server
 	phantomjs none.js $(test_port)
 
 lint:
-	jslint --terse ../hinclude.js
+	node ../node_modules/jslint/bin/jslint.js ../hinclude.js
 
 server:
 	./serve.sh $(test_port)
