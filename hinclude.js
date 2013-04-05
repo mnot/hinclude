@@ -126,6 +126,7 @@ var hinclude;
         var js_onload = this.hinclude_check_onload_body(parsed_document);
         var js_code = this.hinclude_check_js_code(include);
         this.run_hinclude_js(js_onload, js_code);
+        this.hinclude_check_child_include(include);
     },
     
     // verificarion exist head script
@@ -227,6 +228,30 @@ var hinclude;
             document_script.type= 'text/javascript';
             document_script.src = js_src;
             document_head.appendChild(document_script);
+        }
+    },
+    
+    // verification exists child hinclude
+    child_includes: [],
+    hinclude_check_child_include: function(include) {
+        if(!hinclude.isEmpty(include)) {
+            var i = 0;
+            var mode = this.get_meta("include_mode", "buffered");
+            var callback = function (element, req) {};
+            this.child_includes = include[0].getElementsByTagName("hx:include");
+            if (this.child_includes.length === 0) { // remove ns for IE
+              this.child_includes = include[0].getElementsByTagName("include");
+            }
+            if (mode === "async") {
+              callback = this.set_content_async;
+            } else if (mode === "buffered") {
+              callback = this.set_content_buffered;
+              var timeout = this.get_meta("include_timeout", 2.5) * 1000;
+              setTimeout(hinclude.show_buffered_content, timeout);
+            }
+            for (i; i < this.child_includes.length; i += 1) {
+              this.include(this.child_includes[i], this.child_includes[i].getAttribute("src"), callback);
+            }
         }
     },
     
