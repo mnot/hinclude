@@ -85,12 +85,16 @@ var hinclude;
         var timeout = this.get_meta("include_timeout", 2.5) * 1000;
         setTimeout(hinclude.show_buffered_content, timeout);
       }
+
       for (i; i < this.includes.length; i += 1) {
-        this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
+        this.include(this.includes[i], this.includes[i].getAttribute("src"), this.includes[i].getAttribute("media"), callback);
       }
     },
 
-    include: function (element, url, incl_cb) {
+    include: function (element, url, media, incl_cb) {
+      if (media && window.matchMedia && !window.matchMedia(media).matches) {
+        return;
+      }
       var scheme = url.substring(0, url.indexOf(":"));
       if (scheme.toLowerCase() === "data") { // just text/plain for now
         var data = decodeURIComponent(url.substring(url.indexOf(",") + 1, url.length));
@@ -214,5 +218,6 @@ var hinclude;
     }
   };
 
-  hinclude.addDOMLoadEvent(function () {hinclude.run(); });
+  hinclude.addDOMLoadEvent(function () { hinclude.run(); });
 }());
+

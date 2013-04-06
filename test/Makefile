@@ -1,5 +1,5 @@
 test_port=8081
-test: basic none lint
+test: basic none small_media large_media lint
 
 basic: server
 	phantomjs basic.js $(test_port)
@@ -7,7 +7,12 @@ basic: server
 none: server
 	phantomjs none.js $(test_port)
 
-lint: 
+small_media: server
+	phantomjs small_media.js $(test_port)
+
+large_media: server
+	phantomjs large_media.js $(test_port)
+lint:
 	node ../node_modules/jslint/bin/jslint.js ../hinclude.js
 
 server:
