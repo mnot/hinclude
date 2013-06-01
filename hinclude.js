@@ -225,12 +225,12 @@ var hinclude;
     },
 
     load_js_src_from_content: function (items, iteration) {
-      if (!iteration) iteration = 0;
+      if (!iteration) { iteration = 0; }
       if (items[iteration]) {
         this.move_jsfile_to_document(
           items[iteration],
           function () {
-            hinclude.load_js_src_from_content(items, iteration+1);
+            hinclude.load_js_src_from_content(items, iteration + 1);
           }
         );
       }
@@ -239,13 +239,14 @@ var hinclude;
     move_jsfile_to_document: function (js_src, callback) {
       if (js_src) {
         var document_head = document.getElementsByTagName('head')[0];
-        var document_script = document.createElement('script');
+        var document_script;
+        document_script = document.createElement('script');
         document_script.type = 'text/javascript';
         document_script.src = js_src;
         if (callback) {
           document_script.onreadystatechange = function () {
-            if (this.readyState == 'loaded') callback();
-          }
+            if (this.readyState === 'loaded') { callback(); }
+          };
           document_script.onload = callback;
         }
         document_head.appendChild(document_script);
