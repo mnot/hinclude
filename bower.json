@@ -1,0 +1,11 @@
+{
+  "name": "hinclude",
+  "version": "0.9.5",
+  "main": "hinclude.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components",
+    "test"
+  ]
+}
