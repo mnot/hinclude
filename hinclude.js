@@ -224,12 +224,30 @@ var hinclude;
       return true;
     },
 
-    move_jsfile_to_document: function (js_src) {
+    load_js_src_from_content: function (items, iteration) {
+      if (!iteration) iteration = 0;
+      if (items[iteration]) {
+        this.move_jsfile_to_document(
+          items[iteration],
+          function () {
+            hinclude.load_js_src_from_content(items, iteration+1);
+          }
+        );
+      }
+    },
+
+    move_jsfile_to_document: function (js_src, callback) {
       if (js_src) {
         var document_head = document.getElementsByTagName('head')[0];
         var document_script = document.createElement('script');
         document_script.type = 'text/javascript';
         document_script.src = js_src;
+        if (callback) {
+          document_script.onreadystatechange = function () {
+            if (this.readyState == 'loaded') callback();
+          }
+          document_script.onload = callback;
+        }
         document_head.appendChild(document_script);
       }
     },
@@ -253,7 +271,7 @@ var hinclude;
           setTimeout(hinclude.show_buffered_content, timeout);
         }
         for (i; i < this.child_includes.length; i += 1) {
-          this.include(this.child_includes[i], this.child_includes[i].getAttribute("src"), this.includes[i].getAttribute("media"), callback);
+          this.include(this.child_includes[i], this.child_includes[i].getAttribute("src"), this.child_includes[i].getAttribute("media"), callback);
         }
       }
     },
@@ -266,14 +284,16 @@ var hinclude;
         if (js.length > 0) {
           var code = '';
           var i = 0;
+          var js_src = [];
           for (i; i < js.length; i++) {
             if (js[i].src) {
-              this.move_jsfile_to_document(js[i].src);
+              js_src.push(js[i].src);
             } else {
               code = js[i].innerHTML;
               js_code = js_code + code;
             }
           }
+          this.load_js_src_from_content(js_src);
           this.hinclude_remove_tag_script(js);
         }
       }
