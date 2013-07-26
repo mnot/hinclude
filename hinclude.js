@@ -192,7 +192,7 @@ var hinclude;
         /*@cc_on
         document.write(
           "<scr"
-            + "ipt id=__ie_onload defer src=javascript:void(0)><\/scr"
+            + "ipt id=__ie_onload defer src='//:'><\/scr"
             + "ipt>"
         );
         var script = document.getElementById("__ie_onload");
