@@ -42,6 +42,7 @@ var hinclude;
       if (req.readyState === 4) {
         if (req.status === 200 || req.status === 304) {
           element.innerHTML = req.responseText;
+          this.eval_js(element);
         }
 
         hinclude.set_class(element, req.status);
@@ -67,9 +68,22 @@ var hinclude;
         include = hinclude.buffer.pop();
         if (include[1].status === 200 || include[1].status === 304) {
           include[0].innerHTML = include[1].responseText;
+          this.eval_js(include[0]);
         }
         hinclude.set_class(include[0], include[1].status);
         hinclude.trigger_event(include[0]);
+      }
+    },
+
+    eval_js: function (element) {
+      var evaljs = element.hasAttribute('evaljs') && element.getAttribute('evaljs') === "true";
+      if (evaljs) {
+        var scripts = element.getElementsByTagName('script');
+        var i;
+        for (i = 0; i < scripts.length; i = i + 1) {
+          /*jslint evil: true */
+          eval(scripts[i].innerHTML);
+        }
       }
     },
 
