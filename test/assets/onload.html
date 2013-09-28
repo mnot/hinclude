@@ -3,14 +3,19 @@
 <title>onLoad Test</title>
 <script language="javascript" type="text/javascript">
     function doOnLoad(){
-        addScript('inject',"function foo(){ document.getElementById('onload').innerHTML = 'this onload is executed'; } foo();");
+        addScript('inject',"function foo(){ document.getElementById('onload').innerText = 'this onload is executed'; } foo();");
     }
 
 
     function addScript(inject,code){
         var _in = document.getElementById('inject');
         var scriptNode = document.createElement('script');
-        scriptNode.innerHTML = code;
+        try {
+          scriptNode.innerHTML = code;
+        } catch (e) {
+          // Internet Explorer
+          scriptNode.text = code;
+        }
         _in.appendChild(scriptNode);
     }
 

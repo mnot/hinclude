@@ -185,7 +185,18 @@ var hinclude;
       } else if (!hinclude.isEmpty(content)) {
         string = content;
       }
-      include[0].innerHTML = string;
+      if (this.detectIe7_8()) {
+        include[0].appendChild(this.fixInnerHtml(string));
+      } else {
+        include[0].innerHTML = string;
+      }
+    },
+
+    fixInnerHtml: function (value) {
+      var new_element;
+      new_element = document.createElement('div');
+      new_element.innerHTML = value;
+      return new_element;
     },
 
     // convert xml node into string
@@ -214,6 +225,7 @@ var hinclude;
       if (value.length === 0) { return true; }
       var type = typeof value;
       if (type === 'object') {
+        if (document.getElementsByTagName('html')) { return false; }
         var key;
         for (key in value) {
           if (value.hasOwnProperty(key)) {
@@ -385,6 +397,13 @@ var hinclude;
         }
       }
       return value_default;
+    },
+
+    detectIe7_8: function () {
+      if ((document.all && !document.querySelector) || (document.all && document.querySelector && !document.addEventListener)) {
+        return true;
+      }
+      return false;
     },
 
     /*

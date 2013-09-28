@@ -1,1 +1,1 @@
-document.getElementById('library').innerHTML = hinc.library + ' visible';
+document.getElementById('library').innerText = hinc.library + ' visible';
