@@ -225,7 +225,7 @@ var hinclude;
       if (value.length === 0) { return true; }
       var type = typeof value;
       if (type === 'object') {
-        if (document.getElementsByTagName('html')) { return false; }
+        if (value.getElementsByTagName('html')) { return false; }
         var key;
         for (key in value) {
           if (value.hasOwnProperty(key)) {
