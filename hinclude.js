@@ -188,7 +188,11 @@ var hinclude;
       if (this.detectIe7_8()) {
         include[0].appendChild(this.fixInnerHtml(string));
       } else {
-        include[0].innerHTML = string;
+        if (!hinclude.isEmpty(include[0])) {
+          include[0].innerHTML = string;
+        } else if (!hinclude.isEmpty(include)) {
+          include.innerHTML = string;
+        }
       }
     },
 
