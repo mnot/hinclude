@@ -65,8 +65,9 @@ var hinclude;
       if (hinclude.isEmpty(hinclude.buffer)) {
         return false;
       }
+      var include;
       while (hinclude.buffer.length > 0) {
-        var include = hinclude.buffer.pop();
+        include = hinclude.buffer.pop();
         if (include[1].status === 200 || include[1].status === 304) {
           hinclude.hinclude_check_content(include, include[1].responseText);
         }
@@ -79,11 +80,11 @@ var hinclude;
     run: function () {
       var i = 0;
       var mode = this.get_meta("include_mode", "buffered");
-      var callback = function (element, req) {};
       this.includes = document.getElementsByTagName("hx:include");
       if (this.includes.length === 0) { // remove ns for IE
         this.includes = document.getElementsByTagName("include");
       }
+      var callback;
       if (mode === "async") {
         callback = this.set_content_async;
       } else if (mode === "buffered") {
@@ -275,11 +276,11 @@ var hinclude;
       if (!hinclude.isEmpty(include)) {
         var i = 0;
         var mode = this.get_meta("include_mode", "buffered");
-        var callback = function (element, req) {};
         this.child_includes = include[0].getElementsByTagName("hx:include");
         if (this.child_includes.length === 0) { // remove ns for IE
           this.child_includes = include[0].getElementsByTagName("include");
         }
+        var callback;
         if (mode === "async") {
           callback = this.set_content_async;
         } else if (mode === "buffered") {
@@ -379,8 +380,8 @@ var hinclude;
 
     refresh: function (element_id) {
       var i = 0;
-      var mode = this.get_meta("include_mode", "buffered");
-      var callback = function (element, req) {};
+      //var mode = this.get_meta("include_mode", "buffered");
+      var callback;
       callback = this.set_content_buffered;
       for (i; i < this.includes.length; i += 1) {
         if (this.includes[i].getAttribute("id") === element_id) {
@@ -393,8 +394,9 @@ var hinclude;
       var metas = document.getElementsByTagName("meta");
       if (!hinclude.isEmpty(metas)) {
         var m = 0;
+        var meta_name;
         for (m; m < metas.length; m += 1) {
-          var meta_name = metas[m].getAttribute("name");
+          meta_name = metas[m].getAttribute("name");
           if (meta_name === name) {
             return metas[m].getAttribute("content");
           }
