@@ -1,8 +1,11 @@
 test_port=8081
-test: basic none small_media large_media lint
+test: basic advanced none small_media large_media lint
 
 basic: server
 	phantomjs basic.js $(test_port)
+
+advanced: server
+	phantomjs advanced.js $(test_port)
 
 none: server
 	phantomjs none.js $(test_port)

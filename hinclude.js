@@ -26,8 +26,8 @@ SOFTWARE.
 See http://mnot.github.com/hinclude/ for documentation.
 */
 
-/*jslint indent: 2, browser: true, vars: true, nomen: true */
-/*global alert, ActiveXObject */
+/*jslint indent: 2, browser: true, vars: true, nomen: true, plusplus: true, evil: true, regexp: true */
+/*global alert, ActiveXObject, DOMParser, XMLSerializer */
 
 var hinclude;
 
@@ -37,11 +37,14 @@ var hinclude;
 
   hinclude = {
     classprefix: "include_",
+    move_head_to_document: true, // moved head script into document head
+    remove_js: true, // removes script by content
 
     set_content_async: function (element, req) {
       if (req.readyState === 4) {
         if (req.status === 200 || req.status === 304) {
           element.innerHTML = req.responseText;
+          hinclude.hinclude_check_content(element, req.responseText);
         }
         element.className = hinclude.classprefix + req.status;
       }
@@ -59,10 +62,14 @@ var hinclude;
     },
 
     show_buffered_content: function () {
+      if (hinclude.isEmpty(hinclude.buffer)) {
+        return false;
+      }
+      var include;
       while (hinclude.buffer.length > 0) {
-        var include = hinclude.buffer.pop();
+        include = hinclude.buffer.pop();
         if (include[1].status === 200 || include[1].status === 304) {
-          include[0].innerHTML = include[1].responseText;
+          hinclude.hinclude_check_content(include, include[1].responseText);
         }
         include[0].className = hinclude.classprefix + include[1].status;
       }
@@ -73,11 +80,11 @@ var hinclude;
     run: function () {
       var i = 0;
       var mode = this.get_meta("include_mode", "buffered");
-      var callback = function (element, req) {};
       this.includes = document.getElementsByTagName("hx:include");
       if (this.includes.length === 0) { // remove ns for IE
         this.includes = document.getElementsByTagName("include");
       }
+      var callback;
       if (mode === "async") {
         callback = this.set_content_async;
       } else if (mode === "buffered") {
@@ -88,6 +95,266 @@ var hinclude;
 
       for (i; i < this.includes.length; i += 1) {
         this.include(this.includes[i], this.includes[i].getAttribute("src"), this.includes[i].getAttribute("media"), callback);
+      }
+    },
+
+    // convert text into xml node
+    hinclude_xml_parser_content: function (content) {
+      var parsed_document = false;
+      if (!hinclude.isEmpty(content)) {
+        if (window.ActiveXObject) {// for Internet Explorer
+          parsed_document = new ActiveXObject('Microsoft.XMLDOM');
+          parsed_document.async = 'false';
+          parsed_document.loadXML(content);
+          if (parsed_document.parseError.errorCode !== 0) {
+            parsed_document = false;
+          }
+        } else {
+          var parser = new DOMParser();
+          parsed_document = parser.parseFromString(content, 'text/xml');
+          if (parsed_document.getElementsByTagName("parsererror").length > 0) {
+            parsed_document = false;
+          }
+        }
+      }
+      return parsed_document;
+    },
+
+    // verification content hinclude
+    hinclude_check_content: function (include, content) {
+      var parsed_document = this.hinclude_xml_parser_content(content);
+      this.hinclude_check_head_script(parsed_document);
+      this.move_html_to_hinclude(include, parsed_document, content);
+      var js_onload = this.hinclude_check_onload_body(parsed_document);
+      var js_code = this.hinclude_check_js_code(include);
+      this.run_hinclude_js(js_onload, js_code);
+      this.hinclude_check_child_include(include);
+    },
+
+    // verificarion exist head script
+    hinclude_check_head_script: function (parsed_document) {
+      //xml document
+      if (!hinclude.isEmpty(parsed_document)) {
+        var head = parsed_document.getElementsByTagName('head');
+        if (head.length > 0) {
+          var script = head[0].getElementsByTagName('script');
+          if (!hinclude.isEmpty(script)) {
+            this.hinclude_move_head_script_to_document(script[0]);
+          }
+        }
+      }
+    },
+
+    // verification exist onload event
+    hinclude_check_onload_body: function (parsed_document) {
+      //xml document
+      if (!hinclude.isEmpty(parsed_document)) {
+        var body = parsed_document.getElementsByTagName('body');
+        var onload = false;
+        if (body.length > 0) {
+          if (!hinclude.isEmpty(body[0].getAttribute('onload'))) {
+            onload = body[0].getAttribute('onload');
+          }
+        }
+        return onload;
+      }
+      return '';
+    },
+
+    // moved head script into document head
+    hinclude_move_head_script_to_document: function (script) {
+      if (script && hinclude.move_head_to_document) {
+        var document_head = document.getElementsByTagName('head')[0];
+        var document_script = document.createElement('script');
+        document_script.type = 'text/javascript';
+        try {
+          document_script.innerHTML = script.textContent;
+        } catch (e) {
+          // Internet Explorer
+          document_script.text = script.text;
+        }
+        document_head.appendChild(document_script);
+        script.parentNode.removeChild(script);
+      }
+    },
+
+    // inserts html content into hinclude
+    move_html_to_hinclude: function (include, parsed_document, content) {
+      var string = '';
+      if (!hinclude.isEmpty(parsed_document)) {
+        string = this.xml_to_string(parsed_document);
+      } else if (!hinclude.isEmpty(content)) {
+        string = content;
+      }
+      if (this.detectIe7_8()) {
+        include[0].appendChild(this.fixInnerHtml(string));
+      } else {
+        if (!hinclude.isEmpty(include[0])) {
+          include[0].innerHTML = string;
+        } else if (!hinclude.isEmpty(include)) {
+          include.innerHTML = string;
+        }
+      }
+    },
+
+    fixInnerHtml: function (value) {
+      var new_element;
+      new_element = document.createElement('div');
+      new_element.innerHTML = value;
+      return new_element;
+    },
+
+    // convert xml node into string
+    xml_to_string: function (parsed_document) {
+      try {
+        // Gecko-based browsers, Safari, Opera.
+        var serialize = (new XMLSerializer()).serializeToString(parsed_document);
+        //fix strip closed tag script
+        serialize = this.fix_strip_closed_tag(serialize);
+        return serialize;
+      } catch (e1) {
+        try {
+          // Internet Explorer.
+          return parsed_document.xml;
+        } catch (e2) {
+          //Strange Browser ??
+          alert('Xmlserializer not supported');
+        }
+      }
+      return false;
+    },
+
+    fix_strip_closed_tag: function (content) {
+      var tags = content.match(/<[^>]*>/g);
+      if (tags.length > 0) {
+        var t = 0;
+        var tag;
+        var replaced;
+        for (t; t < tags.length; t += 1) {
+          tag = tags[t];
+          replaced = tag.replace(/<([a-zA-Z]+)([\s\S]*?)(\/|\s\/)>/g, '<$1$2></$1>');
+          //verify correct replaced
+          if (tag !== replaced) {
+            content = content.replace(tag, replaced);
+          }
+        }
+        return content;
+      }
+      return content;
+    },
+
+    isEmpty: function (value) {
+      if (value === null || value === undefined) { return true; }
+      if (value.length && value.length > 0) { return false; }
+      if (value.length === 0) { return true; }
+      var type = typeof value;
+      if (type === 'object') {
+        if (value.getElementsByTagName('html')) { return false; }
+        var key;
+        for (key in value) {
+          if (value.hasOwnProperty(key)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    },
+
+    load_js_src_from_content: function (items, iteration) {
+      if (!iteration) { iteration = 0; }
+      if (items[iteration]) {
+        this.move_jsfile_to_document(
+          items[iteration],
+          function () {
+            hinclude.load_js_src_from_content(items, iteration + 1);
+          }
+        );
+      }
+    },
+
+    move_jsfile_to_document: function (js_src, callback) {
+      if (js_src) {
+        var document_head = document.getElementsByTagName('head')[0];
+        var document_script;
+        document_script = document.createElement('script');
+        document_script.type = 'text/javascript';
+        document_script.src = js_src;
+        if (callback) {
+          document_script.onreadystatechange = function () {
+            if (this.readyState === 'loaded') { callback(); }
+          };
+          document_script.onload = callback;
+        }
+        document_head.appendChild(document_script);
+      }
+    },
+
+    // verification exists child hinclude
+    child_includes: [],
+    hinclude_check_child_include: function (include) {
+      if (!hinclude.isEmpty(include)) {
+        var i = 0;
+        var mode = this.get_meta("include_mode", "buffered");
+        this.child_includes = include[0].getElementsByTagName("hx:include");
+        if (this.child_includes.length === 0) { // remove ns for IE
+          this.child_includes = include[0].getElementsByTagName("include");
+        }
+        var callback;
+        if (mode === "async") {
+          callback = this.set_content_async;
+        } else if (mode === "buffered") {
+          callback = this.set_content_buffered;
+          var timeout = this.get_meta("include_timeout", 2.5) * 1000;
+          setTimeout(hinclude.show_buffered_content, timeout);
+        }
+        for (i; i < this.child_includes.length; i += 1) {
+          this.include(this.child_includes[i], this.child_includes[i].getAttribute("src"), this.child_includes[i].getAttribute("media"), callback);
+        }
+      }
+    },
+
+    // verification exists scripts into content
+    hinclude_check_js_code: function (include) {
+      var js_code = '';
+      if (!hinclude.isEmpty(include)) {
+        var js = include[0].getElementsByTagName("script");
+        if (js.length > 0) {
+          var code = '';
+          var i = 0;
+          var js_src = [];
+          for (i; i < js.length; i++) {
+            if (js[i].src) {
+              js_src.push(js[i].src);
+            } else {
+              code = js[i].innerHTML;
+              js_code = js_code + code;
+            }
+          }
+          this.load_js_src_from_content(js_src);
+          this.hinclude_remove_tag_script(js);
+        }
+      }
+      return js_code;
+    },
+
+    // removes script by content
+    hinclude_remove_tag_script: function (js) {
+      if (!hinclude.isEmpty(js) && hinclude.remove_js) {
+        var i = 0;
+        for (i; i < js.length; i++) {
+          js[i].parentNode.removeChild(js[i]);
+          i--;
+        }
+      }
+    },
+
+    // execute code js
+    run_hinclude_js: function (js_onload, js_code) {
+      if (!hinclude.isEmpty(js_code)) {
+        eval(js_code);
+      }
+      if (!hinclude.isEmpty(js_onload)) {
+        eval(js_onload);
       }
     },
 
@@ -132,8 +399,8 @@ var hinclude;
 
     refresh: function (element_id) {
       var i = 0;
-      var mode = this.get_meta("include_mode", "buffered");
-      var callback = function (element, req) {};
+      //var mode = this.get_meta("include_mode", "buffered");
+      var callback;
       callback = this.set_content_buffered;
       for (i; i < this.includes.length; i += 1) {
         if (this.includes[i].getAttribute("id") === element_id) {
@@ -143,15 +410,25 @@ var hinclude;
     },
 
     get_meta: function (name, value_default) {
-      var m = 0;
       var metas = document.getElementsByTagName("meta");
-      for (m; m < metas.length; m += 1) {
-        var meta_name = metas[m].getAttribute("name");
-        if (meta_name === name) {
-          return metas[m].getAttribute("content");
+      if (!hinclude.isEmpty(metas)) {
+        var m = 0;
+        var meta_name;
+        for (m; m < metas.length; m += 1) {
+          meta_name = metas[m].getAttribute("name");
+          if (meta_name === name) {
+            return metas[m].getAttribute("content");
+          }
         }
       }
       return value_default;
+    },
+
+    detectIe7_8: function () {
+      if ((document.all && !document.querySelector) || (document.all && document.querySelector && !document.addEventListener)) {
+        return true;
+      }
+      return false;
     },
 
     /*
@@ -169,7 +446,9 @@ var hinclude;
         var init = function () {
           var i = 0;
           // quit if this function has already been called
-          if (hinclude.addDOMLoadEvent.done) {return; }
+          if (hinclude.addDOMLoadEvent.done) {
+            return;
+          }
           hinclude.addDOMLoadEvent.done = true;
           if (window.__load_timer) {
             clearInterval(window.__load_timer);
