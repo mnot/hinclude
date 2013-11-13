@@ -26,7 +26,7 @@ SOFTWARE.
 See http://mnot.github.com/hinclude/ for documentation.
 */
 
-/*jslint indent: 2, browser: true, vars: true, nomen: true, plusplus: true, evil: true */
+/*jslint indent: 2, browser: true, vars: true, nomen: true, plusplus: true, evil: true, regexp: true */
 /*global alert, ActiveXObject, DOMParser, XMLSerializer */
 
 var hinclude;
@@ -210,7 +210,7 @@ var hinclude;
         // Gecko-based browsers, Safari, Opera.
         var serialize = (new XMLSerializer()).serializeToString(parsed_document);
         //fix strip closed tag script
-        serialize = serialize.replace(/<script([\s\S]*?)\/>/g, '<script$1></script>');
+        serialize = this.fix_strip_closed_tag(serialize);
         return serialize;
       } catch (e1) {
         try {
@@ -222,6 +222,25 @@ var hinclude;
         }
       }
       return false;
+    },
+
+    fix_strip_closed_tag: function (content) {
+      var tags = content.match(/<[^>]*>/g);
+      if (tags.length > 0) {
+        var t = 0;
+        var tag;
+        var replaced;
+        for (t; t < tags.length; t += 1) {
+          tag = tags[t];
+          replaced = tag.replace(/<([a-zA-Z]+)([\s\S]*?)(\/|\s\/)>/g, '<$1$2></$1>');
+          //verify correct replaced
+          if (tag !== replaced) {
+            content = content.replace(tag, replaced);
+          }
+        }
+        return content;
+      }
+      return content;
     },
 
     isEmpty: function (value) {
