@@ -101,17 +101,23 @@ var hinclude;
         element.innerHTML = data;
       } else {
         var req = false;
-        if (window.XMLHttpRequest) {
-          try {
-            req = new XMLHttpRequest();
-          } catch (e1) {
+        // test if the element has a claimed cookie
+        var cookie_name = element.getAttribute("cookie");
+        if (cookie_name && !this.has_cookie(cookie_name)) {
             req = false;
-          }
-        } else if (window.ActiveXObject) {
-          try {
-            req = new ActiveXObject("Microsoft.XMLHTTP");
-          } catch (e2) {
-            req = false;
+        } else {
+          if (window.XMLHttpRequest) {
+            try {
+              req = new XMLHttpRequest();
+            } catch (e1) {
+              req = false;
+            }
+          } else if (window.ActiveXObject) {
+            try {
+              req = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e2) {
+              req = false;
+            }
           }
         }
         if (req) {
@@ -152,6 +158,21 @@ var hinclude;
         }
       }
       return value_default;
+    },
+
+    has_cookie: function(name) {
+      var dc = '; ' + document.cookie + ';';
+      var prefix = "; " + name + "=";
+      var begin = dc.indexOf(prefix);
+
+      // begin === -1 means that the key is not found in the cookie string
+      if (begin === -1) {
+        return false;
+      }
+      // test if the cookie is empty
+      // Example, "test" cookie is empty will store : "[...]; test=;[...]" in the cookie string
+      begin = dc.indexOf(prefix + ';');
+      return (begin === -1);
     },
 
     /*
