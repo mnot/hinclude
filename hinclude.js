@@ -160,7 +160,7 @@ var hinclude;
       return value_default;
     },
 
-    has_cookie: function(name) {
+    has_cookie: function (name) {
       var dc = '; ' + document.cookie + ';';
       var prefix = "; " + name + "=";
       var begin = dc.indexOf(prefix);
