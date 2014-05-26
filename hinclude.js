@@ -103,8 +103,19 @@ var hinclude;
       } else {
         var req = false;
         // test if the element has a claimed cookie
-        var cookie_name = element.getAttribute("cookie");
-        if (cookie_name && !this.has_cookie(cookie_name)) {
+        var cookie_value = element.getAttribute("cookie");
+        var hasCookie = false;
+        if (cookie_value) {
+          var cookie_list = cookie_value.split('||');
+          var i;
+          for (i in cookie_list) {
+            if (cookie_list.hasOwnProperty(i) && this.has_cookie(cookie_list[i].trim())) {
+              hasCookie = true;
+              break;
+            }
+          }
+        }
+        if (cookie_value && !hasCookie) {
           req = false;
         } else {
           if (window.XMLHttpRequest) {
