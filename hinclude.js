@@ -59,8 +59,9 @@ var hinclude;
     },
 
     show_buffered_content: function () {
+      var include;
       while (hinclude.buffer.length > 0) {
-        var include = hinclude.buffer.pop();
+        include = hinclude.buffer.pop();
         if (include[1].status === 200 || include[1].status === 304) {
           include[0].innerHTML = include[1].responseText;
         }
@@ -73,7 +74,7 @@ var hinclude;
     run: function () {
       var i = 0;
       var mode = this.get_meta("include_mode", "buffered");
-      var callback = function (element, req) {};
+      var callback;
       this.includes = document.getElementsByTagName("hx:include");
       if (this.includes.length === 0) { // remove ns for IE
         this.includes = document.getElementsByTagName("include");
@@ -101,23 +102,42 @@ var hinclude;
         element.innerHTML = data;
       } else {
         var req = false;
-        if (window.XMLHttpRequest) {
-          try {
-            req = new XMLHttpRequest();
-          } catch (e1) {
-            req = false;
+        // test if the element has a claimed cookie
+        var cookie_value = element.getAttribute("cookie");
+        var hasCookie = false;
+        if (cookie_value) {
+          var cookie_list = cookie_value.split('||');
+          var i;
+          for (i in cookie_list) {
+            if (cookie_list.hasOwnProperty(i) && this.has_cookie(cookie_list[i].trim())) {
+              hasCookie = true;
+              break;
+            }
           }
-        } else if (window.ActiveXObject) {
-          try {
-            req = new ActiveXObject("Microsoft.XMLHTTP");
-          } catch (e2) {
-            req = false;
+        }
+        if (cookie_value && !hasCookie) {
+          req = false;
+        } else {
+          if (window.XMLHttpRequest) {
+            try {
+              req = new XMLHttpRequest();
+            } catch (e1) {
+              req = false;
+            }
+          } else if (window.ActiveXObject) {
+            try {
+              req = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e2) {
+              req = false;
+            }
           }
         }
         if (req) {
           this.outstanding += 1;
           req.onreadystatechange = function () {
-            incl_cb(element, req);
+            if (typeof incl_cb === 'function') {
+              incl_cb(element, req);
+            }
           };
           try {
             req.open("GET", url, true);
@@ -132,9 +152,7 @@ var hinclude;
 
     refresh: function (element_id) {
       var i = 0;
-      var mode = this.get_meta("include_mode", "buffered");
-      var callback = function (element, req) {};
-      callback = this.set_content_buffered;
+      var callback = this.set_content_buffered;
       for (i; i < this.includes.length; i += 1) {
         if (this.includes[i].getAttribute("id") === element_id) {
           this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
@@ -145,13 +163,29 @@ var hinclude;
     get_meta: function (name, value_default) {
       var m = 0;
       var metas = document.getElementsByTagName("meta");
+      var meta_name;
       for (m; m < metas.length; m += 1) {
-        var meta_name = metas[m].getAttribute("name");
+        meta_name = metas[m].getAttribute("name");
         if (meta_name === name) {
           return metas[m].getAttribute("content");
         }
       }
       return value_default;
+    },
+
+    has_cookie: function (name) {
+      var dc = '; ' + document.cookie + ';';
+      var prefix = "; " + name + "=";
+      var begin = dc.indexOf(prefix);
+
+      // begin === -1 means that the key is not found in the cookie string
+      if (begin === -1) {
+        return false;
+      }
+      // test if the cookie is empty
+      // Example, "test" cookie is empty will store : "[...]; test=;[...]" in the cookie string
+      begin = dc.indexOf(prefix + ';');
+      return (begin === -1);
     },
 
     /*
