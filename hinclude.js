@@ -44,15 +44,15 @@ var hinclude;
      * @param event Placeholder for creating an Event
      */
     trigger_event: function (target, type, event) {
-        var doc = document;
-        if (doc.createEvent) {
-            event = doc.createEvent("Event");
-            event.initEvent(type, true, true);
-            target.dispatchEvent(event);
-        } else {
-            event = doc.createEventObject();
-            target.fireEvent('on' + type, event);
-        }
+      var doc = document;
+      if (doc.createEvent) {
+        event = doc.createEvent("Event");
+        event.initEvent(type, true, true);
+        target.dispatchEvent(event);
+      } else {
+        event = doc.createEventObject();
+        target.fireEvent('on' + type, event);
+      }
     },
 
     set_content_async: function (element, req) {
@@ -61,7 +61,10 @@ var hinclude;
           element.innerHTML = req.responseText;
         }
         element.className = hinclude.classprefix + req.status;
-        hinclude.trigger_event(document, 'hinclude_content_set');
+        var eventType = element.dataset.eventType !== undefined ?
+              element.dataset.eventType :
+              'hinclude_content_set';
+        hinclude.trigger_event(element, eventType);
       }
     },
 
@@ -73,13 +76,14 @@ var hinclude;
         if (hinclude.outstanding === 0) {
           hinclude.show_buffered_content();
         }
-        hinclude.trigger_event(document, 'hinclude_content_set');
+        hinclude.trigger_event(element, 'hinclude_content_set');
       }
     },
 
     show_buffered_content: function () {
+      var include;
       while (hinclude.buffer.length > 0) {
-        var include = hinclude.buffer.pop();
+        include = hinclude.buffer.pop();
         if (include[1].status === 200 || include[1].status === 304) {
           include[0].innerHTML = include[1].responseText;
         }
@@ -92,7 +96,7 @@ var hinclude;
     run: function () {
       var i = 0;
       var mode = this.get_meta("include_mode", "buffered");
-      var callback = function (element, req) {};
+      var callback; //= function (element, req) {};
       this.includes = document.getElementsByTagName("hx:include");
       if (this.includes.length === 0) { // remove ns for IE
         this.includes = document.getElementsByTagName("include");
@@ -151,8 +155,8 @@ var hinclude;
 
     refresh: function (element_id) {
       var i = 0;
-      var mode = this.get_meta("include_mode", "buffered");
-      var callback = function (element, req) {};
+      this.get_meta("include_mode", "buffered");
+      var callback; //= function (element, req) {};
       callback = this.set_content_buffered;
       for (i; i < this.includes.length; i += 1) {
         if (this.includes[i].getAttribute("id") === element_id) {
@@ -164,8 +168,9 @@ var hinclude;
     get_meta: function (name, value_default) {
       var m = 0;
       var metas = document.getElementsByTagName("meta");
+      var meta_name;
       for (m; m < metas.length; m += 1) {
-        var meta_name = metas[m].getAttribute("name");
+        meta_name = metas[m].getAttribute("name");
         if (meta_name === name) {
           return metas[m].getAttribute("content");
         }
