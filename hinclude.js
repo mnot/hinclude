@@ -38,12 +38,30 @@ var hinclude;
   hinclude = {
     classprefix: "include_",
 
+    /**
+     * @param target can be any DOM Element or other EventTarget
+     * @param type Event type (i.e. 'click')
+     * @param event Placeholder for creating an Event
+     */
+    trigger_event: function (target, type, event) {
+        var doc = document;
+        if (doc.createEvent) {
+            event = doc.createEvent("Event");
+            event.initEvent(type, true, true);
+            target.dispatchEvent(event);
+        } else {
+            event = doc.createEventObject();
+            target.fireEvent('on' + type, event);
+        }
+    },
+
     set_content_async: function (element, req) {
       if (req.readyState === 4) {
         if (req.status === 200 || req.status === 304) {
           element.innerHTML = req.responseText;
         }
         element.className = hinclude.classprefix + req.status;
+        hinclude.trigger_event(document, 'hinclude_content_set');
       }
     },
 
@@ -55,6 +73,7 @@ var hinclude;
         if (hinclude.outstanding === 0) {
           hinclude.show_buffered_content();
         }
+        hinclude.trigger_event(document, 'hinclude_content_set');
       }
     },
 
