@@ -137,7 +137,7 @@ var hinclude;
       callback = this.set_content_buffered;
       for (i; i < this.includes.length; i += 1) {
         if (this.includes[i].getAttribute("id") === element_id) {
-          this.include(this.includes[i], this.includes[i].getAttribute("src"), callback);
+          this.include(this.includes[i], this.includes[i].getAttribute("src"), this.includes[i].getAttribute("media"), callback);
         }
       }
     },
