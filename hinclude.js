@@ -44,6 +44,7 @@ var hinclude;
           element.innerHTML = req.responseText;
         }
         element.className = hinclude.classprefix + req.status;
+        element.dispatchEvent(new Event('ready'));
       }
     },
 
@@ -55,6 +56,7 @@ var hinclude;
         if (hinclude.outstanding === 0) {
           hinclude.show_buffered_content();
         }
+        element.dispatchEvent(new Event('ready'));
       }
     },
 
@@ -100,6 +102,7 @@ var hinclude;
       if (scheme.toLowerCase() === "data") { // just text/plain for now
         var data = decodeURIComponent(url.substring(url.indexOf(",") + 1, url.length));
         element.innerHTML = data;
+        element.dispatchEvent(new Event('ready'));
       } else {
         var req = false;
         if (window.XMLHttpRequest) {
