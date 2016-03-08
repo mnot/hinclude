@@ -4,6 +4,7 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title>HInclude Tests</title>
 	<link type="text/css" rel="stylesheet" href="http://mnot.net/style.css">
+	<script type="text/javascript" src="document-register-element.js"></script>
 	<script type="text/javascript" src="hinclude.js"></script>
 	<style type="text/css">
 	.error_text { display: none; }
@@ -16,15 +17,15 @@
 
 <h2 id="h">Basic Include</h2>
 
-<p id="a" name="a"><hx:include src="included"></hx:include></p>
+<p id="a" name="a"><h-include src="included"></h-include></p>
 
 <h2>Default Content</h2>
 
-<p id="b"><hx:include src="new">this content will be overwritten by the included content</hx:include>.</p>
+<p id="b"><h-include src="new">this content will be overwritten by the included content</h-include>.</p>
 
 <h2>Error Handling</h2>
 
-<p id="c"><hx:include src="nothing"><span class="error_text error_404">this content is shown because there was a 404</span><span class="error_text error_500">this content is shown because there was a 500</span></hx:include>.</p>
+<p id="c"><h-include src="nothing"><span class="error_text error_404">this content is shown because there was a 404</span><span class="error_text error_500">this content is shown because there was a 500</span></h-include>.</p>
 
 </body>
 </html>
