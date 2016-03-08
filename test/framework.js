@@ -28,7 +28,7 @@ function runTests(page_loc, tests, viewport) {
       console.log('BROWSER CONSOLE: ' + msg);
   };
 
-  page.open('http://localhost:' + port + '/' + page_loc, function (status) {
+  page.open('http://localhost:' + port + '/assets/' + page_loc, function (status) {
     if (status === "success") {
       console.log("testing " + port + "...");
     } else {
