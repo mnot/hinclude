@@ -70,27 +70,6 @@ var hinclude;
     },
 
     outstanding: 0,
-    includes: [],
-    run: function () {
-      var i = 0;
-      var mode = this.get_meta("include_mode", "buffered");
-      var callback;
-      this.includes = document.getElementsByTagName("hx:include");
-      if (this.includes.length === 0) { // remove ns for IE
-        this.includes = document.getElementsByTagName("include");
-      }
-      if (mode === "async") {
-        callback = this.set_content_async;
-      } else if (mode === "buffered") {
-        callback = this.set_content_buffered;
-        var timeout = this.get_meta("include_timeout", 2.5) * 1000;
-        setTimeout(hinclude.show_buffered_content, timeout);
-      }
-
-      for (i; i < this.includes.length; i += 1) {
-        this.include(this.includes[i], this.includes[i].getAttribute("src"), this.includes[i].getAttribute("media"), callback);
-      }
-    },
 
     include: function (element, url, media, incl_cb) {
       if (media && window.matchMedia && !window.matchMedia(media).matches) {
@@ -130,95 +109,54 @@ var hinclude;
         }
       }
     },
-
-    refresh: function (element_id) {
-      var i = 0;
-      var callback;
-      callback = this.set_content_buffered;
-      for (i; i < this.includes.length; i += 1) {
-        if (this.includes[i].getAttribute("id") === element_id) {
-          this.include(this.includes[i], this.includes[i].getAttribute("src"), this.includes[i].getAttribute("media"), callback);
-        }
-      }
-    },
-
+    metaCache: {},
     get_meta: function (name, value_default) {
+
+      // Since get_meta is called on each createdCallback, we use caching
+      var cached = this.metaCache[name];
+      if (cached) {
+        return cached;
+      }
+
       var m = 0;
       var metas = document.getElementsByTagName("meta");
-      var meta_name;
+      var meta_name, meta_value;
       for (m; m < metas.length; m += 1) {
         meta_name = metas[m].getAttribute("name");
         if (meta_name === name) {
-          return metas[m].getAttribute("content");
+          meta_value = metas[m].getAttribute("content");
+          this.metaCache[name] = meta_value;
+          return meta_value;
         }
       }
       return value_default;
-    },
-
-    /*
-     * (c)2006 Dean Edwards/Matthias Miller/John Resig
-     * Special thanks to Dan Webb's domready.js Prototype extension
-     * and Simon Willison's addLoadEvent
-     *
-     * For more info, see:
-     * http://dean.edwards.name/weblog/2006/06/again/
-     *
-     * Thrown together by Jesse Skinner (http://www.thefutureoftheweb.com/)
-     */
-    addDOMLoadEvent: function (func) {
-      if (!window.__load_events) {
-        var init = function () {
-          var i = 0;
-          // quit if this function has already been called
-          if (hinclude.addDOMLoadEvent.done) {return; }
-          hinclude.addDOMLoadEvent.done = true;
-          if (window.__load_timer) {
-            clearInterval(window.__load_timer);
-            window.__load_timer = null;
-          }
-          for (i; i < window.__load_events.length; i += 1) {
-            window.__load_events[i]();
-          }
-          window.__load_events = null;
-          // clean up the __ie_onload event
-          /*@cc_on
-          document.getElementById("__ie_onload").onreadystatechange = "";
-          @*/
-        };
-        // for Mozilla/Opera9
-        if (document.addEventListener) {
-          document.addEventListener("DOMContentLoaded", init, false);
-        }
-        // for Internet Explorer
-        /*@cc_on
-        document.write(
-          "<scr"
-            + "ipt id=__ie_onload defer src='//:'><\/scr"
-            + "ipt>"
-        );
-        var script = document.getElementById("__ie_onload");
-        script.onreadystatechange = function () {
-          if (this.readyState === "complete") {
-            init(); // call the onload handler
-          }
-        };
-        @*/
-        // for Safari
-        if (/WebKit/i.test(navigator.userAgent)) { // sniff
-          window.__load_timer = setInterval(function () {
-            if (/loaded|complete/.test(document.readyState)) {
-              init();
-            }
-          }, 10);
-        }
-        // for other browsers
-        window.onload = init;
-        window.__load_events = [];
-      }
-      window.__load_events.push(func);
     }
   };
 
-  hinclude.addDOMLoadEvent(function () { hinclude.run(); });
-}());
+  var proto = Object.create(window.HTMLElement.prototype);
 
+  proto.createdCallback = function () {
+
+    var mode = hinclude.get_meta("include_mode", "buffered");
+    var callback;
+
+    if (mode === "async") {
+      callback = hinclude.set_content_async;
+    } else if (mode === "buffered") {
+      callback = hinclude.set_content_buffered;
+      var timeout = hinclude.get_meta("include_timeout", 2.5) * 1000;
+      setTimeout(hinclude.show_buffered_content, timeout);
+    }
+
+    hinclude.include(this, this.getAttribute("src"), this.getAttribute("media"), callback);
+  };
+
+  proto.refresh = function () {
+    var callback = hinclude.set_content_buffered;
+    hinclude.include(this, this.getAttribute("src"), this.getAttribute("media"), callback);
+  };
+
+  document.registerElement('h-include', {
+    prototype : proto
+  });
+}());
