@@ -10,9 +10,17 @@
       } 
     ],
      "dependencies" : {
-        "jslint"   :  "*"
+        "copyfiles": "^0.2.1",
+        "jslint"   :  "*",
+        "simplehttpserver": "0.0.6"
       },
     "engines": {
         "node": ">= 0.6.0"
+    },
+    "scripts": {
+      "copy": "copyfiles hinclude.js test/assets/",
+      "server": "simplehttpserver -p $PORT test/assets",
+      "test": "npm run copy; cd test; make test_port=$PORT",
+      "test_killall": "npm test; killall node"
     }
 }

@@ -1,4 +1,3 @@
-test_port=8081
 test: basic none small_media large_media lint
 
 basic: server
@@ -16,4 +15,4 @@ lint:
 	node ../node_modules/jslint/bin/jslint.js ../hinclude.js
 
 server:
-	./serve.sh $(test_port)
+	npm run server &
