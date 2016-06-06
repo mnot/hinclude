@@ -44,6 +44,9 @@ var hinclude;
           element.innerHTML = req.responseText;
         }
         element.className = hinclude.classprefix + req.status;
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent('ready', false, false, null);
+        element.dispatchEvent(evt);
       }
     },
 
@@ -55,6 +58,9 @@ var hinclude;
         if (hinclude.outstanding === 0) {
           hinclude.show_buffered_content();
         }
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent('ready', false, false, null);
+        element.dispatchEvent(evt);
       }
     },
 
@@ -100,6 +106,9 @@ var hinclude;
       if (scheme.toLowerCase() === "data") { // just text/plain for now
         var data = decodeURIComponent(url.substring(url.indexOf(",") + 1, url.length));
         element.innerHTML = data;
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent('ready', false, false, null);
+        element.dispatchEvent(evt);
       } else {
         var req = false;
         if (window.XMLHttpRequest) {
