@@ -48,6 +48,7 @@ function runTests(page_loc, tests, viewport) {
           var j = 0;
           while (j < console_msg.length) {
             if (tests[i][1][2] == console_msg[j]) {
+              i++;
               continue top;
             }
             j++;
