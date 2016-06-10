@@ -45,6 +45,7 @@ function runTests(page_loc, tests, viewport) {
         checkContent(tests[i][0], tests[i][1]);
 
         if (typeof tests[i][1][2] == 'string') {
+          var j = 0;
           while (j < console_msg.length) {
             if (tests[i][1][2] == console_msg[j]) {
               continue top;
