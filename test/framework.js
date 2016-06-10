@@ -50,6 +50,7 @@ function runTests(page_loc, tests, viewport) {
             if (tests[i][1][2] == console_msg[j]) {
               continue top;
             }
+            j++;
           }
           errors.push("Event 'hinclude' was not triggered\n");
         }
