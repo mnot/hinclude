@@ -46,7 +46,9 @@ function runTests(page_loc, tests, viewport) {
 
         if (typeof tests[i][1][2] == 'string') {
           var j = 0;
+          console.log(console_msg); // debug
           while (j < console_msg.length) {
+            console.log(tests[i][1][2] + ' == ' + console_msg[j]); // debug
             if (tests[i][1][2] == console_msg[j]) {
               i++;
               continue top;
