@@ -16,7 +16,18 @@
 
 <h2 id="h">Basic Include</h2>
 
-<p id="a" name="a"><hx:include src="included"></hx:include></p>
+<p id="a" name="a"><hx:include src="included" id="a_included"></hx:include></p>
+<script type="text/javascript">
+var callback = function(){
+	console.log('hinclude is ended');
+};
+var element = document.getElementById('a_included');
+if (element.addEventListener) {
+	element.addEventListener('hinclude', callback);
+} else if (element.attachEvent) {
+	element.attachEvent('onhinclude', callback);
+}
+</script>
 
 <h2>Default Content</h2>
 
