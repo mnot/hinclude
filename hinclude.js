@@ -44,6 +44,7 @@ var hinclude;
           element.innerHTML = req.responseText;
         }
         element.className = hinclude.classprefix + req.status;
+        hinclude.trigger_event(element);
       }
     },
 
@@ -66,6 +67,7 @@ var hinclude;
           include[0].innerHTML = include[1].responseText;
         }
         include[0].className = hinclude.classprefix + include[1].status;
+        hinclude.trigger_event(include[0]);
       }
     },
 
@@ -216,6 +218,23 @@ var hinclude;
         window.__load_events = [];
       }
       window.__load_events.push(func);
+    },
+
+    trigger_event: function (element) {
+      var event;
+
+      if (document.createEvent) {
+        event = document.createEvent("HTMLEvents");
+        event.initEvent("hinclude", true, true);
+        event.eventName = "hinclude";
+        element.dispatchEvent(event);
+
+      } else if (document.createEventObject) { // IE
+        event = document.createEventObject();
+        event.eventType = "hinclude";
+        event.eventName = "hinclude";
+        element.fireEvent("on" + event.eventType, event);
+      }
     }
   };
 
