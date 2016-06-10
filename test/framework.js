@@ -44,12 +44,10 @@ function runTests(page_loc, tests, viewport) {
       while (i < tests.length) {
         checkContent(tests[i][0], tests[i][1]);
 
-        if (typeof tests[i][1][2] == 'string') {
+        if (typeof tests[i][2] == 'string') {
           var j = 0;
-          console.log(console_msg); // debug
           while (j < console_msg.length) {
-            console.log(tests[i][1][2] + ' == ' + console_msg[j]); // debug
-            if (tests[i][1][2] == console_msg[j]) {
+            if (tests[i][2] == console_msg[j]) {
               i++;
               continue top;
             }
