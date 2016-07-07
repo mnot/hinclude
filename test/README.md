@@ -11,13 +11,17 @@ Requirements
 
 After this we can set up the project
  
-  > npm install
+```
+npm install
+```
 
 Running tests locally
 ---------------------
 
-  > cd test
-  > make
+```
+cd test
+make
+```
 
 Release Testing
 ---------------
