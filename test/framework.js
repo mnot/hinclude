@@ -6,6 +6,7 @@ var webpage = require('webpage');
 function runTests(page_loc, tests, viewport) {
   var port = args[1];
   var errors = [];
+  var console_msg = [];
   var page = webpage.create();
   if(viewport){
       page.viewportSize = viewport;
@@ -25,6 +26,7 @@ function runTests(page_loc, tests, viewport) {
   };
 
   page.onConsoleMessage = function (msg) {
+      console_msg.push(msg);
       console.log('BROWSER CONSOLE: ' + msg);
   };
 
@@ -38,8 +40,21 @@ function runTests(page_loc, tests, viewport) {
       }
 
       var i = 0;
+      top:
       while (i < tests.length) {
         checkContent(tests[i][0], tests[i][1]);
+
+        if (typeof tests[i][2] == 'string') {
+          var j = 0;
+          while (j < console_msg.length) {
+            if (tests[i][2] == console_msg[j]) {
+              i++;
+              continue top;
+            }
+            j++;
+          }
+          errors.push("Event 'hinclude' was not triggered\n");
+        }
         i++;
       }
 
