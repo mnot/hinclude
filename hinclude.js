@@ -123,10 +123,10 @@ var hinclude;
           req.onreadystatechange = function () {
             incl_cb(element, req);
 
-            if(req.readyState === 4) {
-              var refresh = parseInt(element.getAttribute('refresh')) || 0;
-              if(refresh > 0) {
-                window.setTimeout(function() {
+            if (req.readyState === 4) {
+              var refresh = parseInt(element.getAttribute('refresh'), 10) || 0;
+              if (refresh > 0) {
+                window.setTimeout(function () {
                   that.include(element, url, media, incl_cb);
                 }, refresh * 1000);
               }
