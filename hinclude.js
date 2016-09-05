@@ -241,7 +241,7 @@ var hinclude;
 
     set_class: function (element, status) {
       var tokens = element.className.split(/\s+/);
-      var otherClasses = tokens.filter(function(token){
+      var otherClasses = tokens.filter(function (token) {
         return !token.match(/^include_\d+$/i) && !token.match(/^included/i);
       }).join(' ');
 
