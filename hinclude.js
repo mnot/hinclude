@@ -37,7 +37,8 @@ var hinclude;
 
   hinclude = {
     classprefix: "include_",
-
+    crossdomain: false,
+    
     set_content_async: function (element, req) {
       if (req.readyState === 4) {
         if (req.status === 200 || req.status === 304) {
@@ -109,6 +110,9 @@ var hinclude;
         if (window.XMLHttpRequest) {
           try {
             req = new XMLHttpRequest();
+            if(this.crossdomain){
+              req.withCredentials = true;
+            }
           } catch (e1) {
             req = false;
           }
