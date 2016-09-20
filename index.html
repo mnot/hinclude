@@ -88,6 +88,22 @@ HInclude will show what it has and keep on listening for the remaining responses
 
 <p>Of course, you can have no default content, in which case nothing will show up until the include is successful. Which brings up&#8230;</p>
 
+<h2>Enable crossdomain call</h2>
+
+<p>if you want to use crossdomain hinclude with credentials like session or cookies you have to update your hinclude html tag to set data-with-credentials.</p>
+
+<pre class="example">
+	<hx:include src="here your source" data-with-credentials="true" >
+	</hx:include>
+</pre>
+
+Or in symfony : 
+
+<pre class="example">
+     {{ render_hinclude(url('here_route'), {id: 'my-id', attributes: {"data-with-credentials": "true"} }) }}
+</pre>
+
+
 <h2>Advanced Error Handling</h2>
 
 <p>Hinclude will also show default content if there is some problem with loading the include.</p>
