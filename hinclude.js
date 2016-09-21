@@ -109,6 +109,9 @@ var hinclude;
         if (window.XMLHttpRequest) {
           try {
             req = new XMLHttpRequest();
+            if (element.hasAttribute('data-with-credentials')) {
+              req.withCredentials = true;
+            }
           } catch (e1) {
             req = false;
           }
