@@ -1,4 +1,3 @@
-test_port=8081
 test: basic none small_media large_media evaljs lint
 
 basic: server
