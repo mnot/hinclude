@@ -1,4 +1,3 @@
-
 Tests
 =====
 
@@ -6,7 +5,7 @@ Requirements
 ------------
 
  * nodejs
- * [phantomjs](http://phantomjs.org) (at least 1.8.* version)
+ * [phantomjs](http://phantomjs.org) (at least 2.1.* version)
  * Python
 
 After this we can set up the project
