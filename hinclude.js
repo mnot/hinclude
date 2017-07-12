@@ -212,12 +212,10 @@ var hinclude;
         }
         // for Internet Explorer
         /*@cc_on
-        document.write(
-          "<scr"
-            + "ipt id=__ie_onload defer src='//:'><\/scr"
-            + "ipt>"
-        );
-        var script = document.getElementById("__ie_onload");
+        var script = document.createElement('script');
+        script.id = '__ie_onload';
+        script.setAttribute("defer", "defer");
+        document.getElementsByTagName('head')[0].appendChild(script);
         script.onreadystatechange = function () {
           if (this.readyState === "complete") {
             init(); // call the onload handler
