@@ -68,7 +68,7 @@ var hinclude;
         include = hinclude.buffer.pop();
         if (include[1].status === 200 || include[1].status === 304) {
           include[0].innerHTML = include[1].responseText;
-          this.eval_js(include[0]);
+          hinclude.eval_js(include[0]);
         }
         hinclude.set_class(include[0], include[1].status);
         hinclude.trigger_event(include[0]);
