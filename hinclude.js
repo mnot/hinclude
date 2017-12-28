@@ -42,7 +42,7 @@ var hinclude;
       if (req.readyState === 4) {
         if (req.status === 200 || req.status === 304) {
           element.innerHTML = req.responseText;
-          this.eval_js(element);
+          hinclude.eval_js(element);
         }
 
         hinclude.set_class(element, req.status);
