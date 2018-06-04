@@ -12,7 +12,7 @@
   "dependencies" : {
     "copyfiles": "^0.2.1",
     "jslint"   :  "*",
-    "simplehttpserver": "0.0.6"
+    "simplehttpserver": "^0.1.1"
   },
   "engines": {
     "node": ">= 0.6.0"
