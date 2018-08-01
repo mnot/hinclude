@@ -1,6 +1,6 @@
 {
   "name": "Hinclude",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": "Mark Nottingham <mnot@mnot.net>",
   "description": "Declarative client-side inclusion for the Web",
   "contributors": [
