@@ -12,6 +12,8 @@
   "dependencies" : {
     "copyfiles": "^0.2.1",
     "jslint"   :  "*",
+  },
+  "devDependencies": {
     "simplehttpserver": "^0.1.1"
   },
   "engines": {
