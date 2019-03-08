@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/hinclude
+    environment:
+      PORT: 8080
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - run:
+          name: test
+          command: npm test
