@@ -5,7 +5,7 @@ jobs:
     environment:
       PORT: 8080
     docker:
-      - image: circleci/node:latest
+      - image: circleci/node:latest-browsers-legacy
     steps:
       - checkout
       - run:
