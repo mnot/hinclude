@@ -1,6 +1,0 @@
-language: node_js
-
-script:
-  - PORT=8080 npm test
-
-sudo: false
