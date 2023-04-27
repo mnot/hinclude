@@ -137,9 +137,19 @@ var hinclude;
           }
         }
         if (req) {
+          var that = this;
           this.outstanding += 1;
           req.onreadystatechange = function () {
             incl_cb(element, req);
+
+            if (req.readyState === 4) {
+              var refresh = parseInt(element.getAttribute('refresh'), 10) || 0;
+              if (refresh > 0) {
+                window.setTimeout(function () {
+                  that.include(element, url, media, incl_cb);
+                }, refresh * 1000);
+              }
+            }
           };
           try {
             req.open("GET", url, true);
